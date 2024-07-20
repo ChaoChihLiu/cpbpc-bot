@@ -31,7 +31,7 @@ const handleMessage = async (message) => {
     const chatId = message.chat.id;
     const text = message.text;
 
-    if ('hi' === text.toLocaleString()) {
+    if ('hi' === text.toLowerCase()) {
         const keyboard = {
             inline_keyboard: [
                 [
