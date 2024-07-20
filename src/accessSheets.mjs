@@ -2,11 +2,12 @@ import fs from 'fs';
 import { google } from 'googleapis';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import {readConfig} from "./config.mjs";
 
 // Load the service account key JSON file
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const KEYFILEPATH = '/home/ec2-user/cpbpc-bot/.jovial-pod-412005-8dbef88791a5.json';
+const KEYFILEPATH = './.gcp_secret';
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 
 // Authenticate with the Google Sheets API
@@ -21,11 +22,11 @@ async function authenticate() {
 }
 
 // Read data from Google Sheets
+var spreadsheetId = ""
 async function readSheet() {
     const authClient = await authenticate();
     const sheets = google.sheets({ version: 'v4', auth: authClient });
 
-    const spreadsheetId = 'XXX';
     const range = '2024-08!A1:C10'; // Adjust the range as needed
 
     const response = await sheets.spreadsheets.values.get({
@@ -70,6 +71,7 @@ async function writeSheet() {
 }
 
 // Uncomment the function you want to use
+spreadsheetId = await readConfig('./.config', 'chinese_rpg_telegram')
 readSheet();
 // writeSheet();
 
