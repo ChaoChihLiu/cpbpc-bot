@@ -62,7 +62,7 @@ const handleCallbackQuery = async (callbackQuery) => {
         let json = ''
         jsons.forEach((value, key) =>{
             const content = value[0]
-            if( _.startsWith(content, this_date) ){
+            if( content.startsWith(this_date) ){
                 json = _.split(content, ",")[1]
             }
         })
