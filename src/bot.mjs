@@ -53,7 +53,7 @@ const handleCallbackQuery = async (callbackQuery) => {
     if( 'remembrance' === data.toLowerCase() ){
         let spreadId = await readConfig('remembrance_telegram')
         let contents = await readSheetWithRange(spreadId, 'July!B1:B62')
-        await sendMessage(chatId, contents[0]);
+        await sendMessage(chatId, contents[0][0]);
     }
 
     // await sendMessage(chatId, `You selected option: ${data}`);
