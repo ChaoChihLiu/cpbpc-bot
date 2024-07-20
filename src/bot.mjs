@@ -29,7 +29,7 @@ const handleMessage = async (message) => {
     const chatId = message.chat.id;
     const text = message.text;
 
-    if (text === '/start') {
+    if ('hi' === text.toLocaleString()) {
         const keyboard = {
             inline_keyboard: [
                 [
