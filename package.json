@@ -1,0 +1,23 @@
+{
+  "name": "cpbpc-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/bot.mjs",
+  "type": "module",
+  "scripts": {
+    "start": "node src/bot.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/local-auth": "^3.0.1",
+    "body-parser": "^1.20.2",
+    "express": "^4.19.2",
+    "googleapis": "^140.0.1",
+    "lodash": "^4.17.21",
+    "node-fetch": "^3.3.2",
+    "properties": "^1.2.1"
+  }
+}
