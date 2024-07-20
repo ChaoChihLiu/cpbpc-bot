@@ -7,6 +7,7 @@ import properties from 'properties';
 import {readConfig} from "./config.mjs";
 import {readSheetWithRange} from "./accessSheets.mjs";
 import moment from "moment/moment.js";
+import * as _ from 'lodash';
 
 // Replace 'YOUR_API_TOKEN' with your bot's API token
 let API_TOKEN = null;
