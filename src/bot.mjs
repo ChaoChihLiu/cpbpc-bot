@@ -62,7 +62,7 @@ const handleCallbackQuery = async (callbackQuery) => {
         let json = ''
         jsons.forEach((value, key) =>{
             const rem_date = value[0]
-            console.info( `content is ${content}, type of ${typeof content}` )
+            // console.info( `content is ${content}, type of ${typeof content}` )
             if( rem_date == this_date ){
                 json = value[1]
             }
