@@ -62,9 +62,12 @@ export async function readSheetWithRange( spreadsheetId, range ) {
         rows.map((row) => {
             console.log(row);
         });
+        return rows
     } else {
         console.log('No data found.');
     }
+
+    return []
 }
 
 // Write data to Google Sheets
