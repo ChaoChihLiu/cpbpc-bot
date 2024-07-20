@@ -4,6 +4,8 @@ import bodyParser from 'body-parser';
 import fetch from 'node-fetch';
 import fs from 'fs';
 import properties from 'properties';
+import {readConfig} from "./config.mjs";
+import {readSheet, readSheetWithRange} from "./accessSheets.mjs";
 
 // Replace 'YOUR_API_TOKEN' with your bot's API token
 let API_TOKEN = null;
@@ -33,8 +35,8 @@ const handleMessage = async (message) => {
         const keyboard = {
             inline_keyboard: [
                 [
-                    { text: 'Option 1', callback_data: '1' },
-                    { text: 'Option 2', callback_data: '2' }
+                    { text: 'Remembrance', callback_data: 'remembrance' },
+                    { text: 'Sign up Open Jio', callback_data: 'signup_open_jio' }
                 ]
             ]
         };
@@ -48,7 +50,13 @@ const handleCallbackQuery = async (callbackQuery) => {
     const chatId = callbackQuery.message.chat.id;
     const data = callbackQuery.data;
 
-    await sendMessage(chatId, `You selected option: ${data}`);
+    if( 'remembrance' === data.toLowerCase() ){
+        let spreadId = await readConfig('remembrance_telegram')
+        let contents = await readSheetWithRange(spreadId, 'July!B1:B62')
+        await sendMessage(chatId, contents[0]);
+    }
+
+    // await sendMessage(chatId, `You selected option: ${data}`);
 };
 
 const sendMessage = async (chatId, text, replyMarkup = null) => {

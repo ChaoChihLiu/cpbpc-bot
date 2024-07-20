@@ -1,7 +1,15 @@
 import fs from 'fs';
 import properties from 'properties';
 
-export const readConfig = async (filePath, propertyKey) => {
+export const readConfig = async ( propertyKey) => {
+    try {
+        readConfig('./.config', propertyKey)
+    } catch (error) {
+        console.error('Error parsing properties:', error);
+    }
+};
+
+export const readConfigFromFile = async (filePath, propertyKey) => {
     try {
         const data = fs.readFileSync(filePath, 'utf8');
         const obj = properties.parse(data);
