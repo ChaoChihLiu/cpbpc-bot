@@ -96,7 +96,7 @@ async function writeSheet() {
 }
 
 // Uncomment the function you want to use
-spreadsheetId = await readConfigFromFile('./.config', 'remembrance_telegram')
-readSheetWithRange(spreadsheetId, 'July!B1:B62');
+// spreadsheetId = await readConfigFromFile('./.config', 'remembrance_telegram')
+// readSheetWithRange(spreadsheetId, 'July!B1:B62');
 // writeSheet();
 

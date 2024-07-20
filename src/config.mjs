@@ -3,7 +3,7 @@ import properties from 'properties';
 
 export const readConfig = async ( propertyKey) => {
     try {
-        readConfigFromFile('./.config', propertyKey)
+        return readConfigFromFile('./.config', propertyKey)
     } catch (error) {
         console.error('Error parsing properties:', error);
     }
