@@ -6,6 +6,7 @@ import fs from 'fs';
 import properties from 'properties';
 import {readConfig} from "./config.mjs";
 import {readSheetWithRange} from "./accessSheets.mjs";
+import moment from "moment/moment.js";
 
 // Replace 'YOUR_API_TOKEN' with your bot's API token
 let API_TOKEN = null;
@@ -46,14 +47,27 @@ const handleMessage = async (message) => {
     }
 };
 
+
+const month = moment().format('MMMM')
+const this_date = moment().format('DD')
 const handleCallbackQuery = async (callbackQuery) => {
     const chatId = callbackQuery.message.chat.id;
     const data = callbackQuery.data;
 
     if( 'remembrance' === data.toLowerCase() ){
         let spreadId = await readConfig('remembrance_telegram')
-        let contents = await readSheetWithRange(spreadId, 'July!B1:B62')
-        await sendMessage(chatId, contents[0][0]);
+        let jsons = await readSheetWithRange(spreadId, `${month}!A1:B62`)
+
+        let json = ''
+        jsons.forEach((value, key) =>{
+            const rem_date = value[0]
+            if( rem_date == this_date ){
+                json = value[1]
+            }
+        })
+
+        let content = JSON.parse(json)
+        await sendMessage(chatId, content);
     }
 
     // await sendMessage(chatId, `You selected option: ${data}`);
