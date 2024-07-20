@@ -64,6 +64,7 @@ const handleCallbackQuery = async (callbackQuery) => {
             const rem_date = value[0]
             // console.info( `content is ${content}, type of ${typeof content}` )
             if( rem_date == this_date ){
+                console.info( `content is ${value[1]}, type of ${typeof value[1]}` )
                 json = value[1]
             }
         })
