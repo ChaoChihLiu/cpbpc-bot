@@ -69,7 +69,7 @@ const handleCallbackQuery = async (callbackQuery) => {
             }
         })
 
-        let content = JSON.parse(json)
+        let content = json
         await sendMessage(chatId, content);
     }
 
