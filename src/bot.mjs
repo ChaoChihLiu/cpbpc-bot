@@ -51,9 +51,15 @@ const handleMessage = async (message) => {
 
 const month = moment().format('MMMM')
 const this_date = moment().format('DD')
+const currentHour = moment().hours();
 const handleCallbackQuery = async (callbackQuery) => {
     const chatId = callbackQuery.message.chat.id;
     const data = callbackQuery.data;
+
+    let current_moment = "Morning"
+    if( currentHour >= 12 ){
+        current_moment = "Evening"
+    }
 
     if( 'remembrance' === data.toLowerCase() ){
         let spreadId = await readConfig('remembrance_telegram')
@@ -63,7 +69,7 @@ const handleCallbackQuery = async (callbackQuery) => {
         jsons.forEach((value, key) =>{
             const rem_date = value[0]
             // console.info( `content is ${content}, type of ${typeof content}` )
-            if( rem_date == this_date ){
+            if( rem_date == this_date && value[1].includes(current_moment) ){
                 console.info( `content is ${value[1]}, type of ${typeof value[1]}` )
                 json = value[1]
             }
