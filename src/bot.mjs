@@ -83,6 +83,21 @@ const handleCallbackQuery = async (callbackQuery) => {
         await sendMessage(chatId, content);
     }
 
+    if( 'open_jio_form' === data.toLowerCase() ){
+        const keyboard = {
+            reply_markup: {
+                keyboard: [
+                    [{ text: 'Button 1' }, { text: 'Button 2' }],
+                    [{ text: 'Button 3' }, { text: 'Button 4' }]
+                ],
+                resize_keyboard: true,
+                one_time_keyboard: true
+            }
+        };
+
+        await sendMessage(chatId, 'Choose an option:', keyboard);
+    }
+
     // await sendMessage(chatId, `You selected option: ${data}`);
 };
 
