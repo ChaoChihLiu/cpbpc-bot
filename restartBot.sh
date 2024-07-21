@@ -1,4 +1,4 @@
 #!/bin/bash
 
-./stopBot.sh 89;
+./stopBot.sh;
 ./startBot.sh;
