@@ -37,13 +37,23 @@ const handleMessage = async (message) => {
     
     if( text && text.length > 0 ){
     // if ('hi' === text.toLowerCase()) {
+    //     const keyboard = {
+    //         inline_keyboard: [
+    //             [
+    //                 { text: 'Remembrance', callback_data: 'remembrance' },
+    //                 { text: 'Sign up Open Jio', callback_data: 'open_jio_form' }
+    //             ]
+    //         ]
+    //     };
         const keyboard = {
-            inline_keyboard: [
-                [
-                    { text: 'Remembrance', callback_data: 'remembrance' },
-                    { text: 'Sign up Open Jio', callback_data: 'open_jio_form' }
-                ]
-            ]
+            reply_markup: {
+                keyboard: [
+                    [{ text: 'Button 1' }, { text: 'Button 2' }],
+                    [{ text: 'Button 3' }, { text: 'Button 4' }]
+                ],
+                resize_keyboard: true,
+                one_time_keyboard: true
+            }
         };
         await sendMessage(chatId, 'Please choose:', keyboard);
     } else {
