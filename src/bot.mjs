@@ -24,8 +24,8 @@ bot.on('message', (msg) => {
                 [
                     { text: 'Remembrance', callback_data: 'remembrance' },
                     { text: 'Sign up Open Jio', callback_data: 'open_jio_form' },
-                    { text: 'church website', url: 'https://calvarypandan.sg/' }
-                ]
+                ],
+                [{ text: 'church website', url: 'https://calvarypandan.sg/' }]
             ]
         }
     };
