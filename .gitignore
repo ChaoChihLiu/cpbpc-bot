@@ -19,6 +19,7 @@ tmp/*
 *.b64
 package
 
+.env
 generatedReport
 correct-control-files/*.DAT
 correct-control-files/Control/*.DAT
