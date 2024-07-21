@@ -35,8 +35,8 @@ const handleMessage = async (message) => {
     const text = message.text;
 
     
-
-    if ('hi' === text.toLowerCase()) {
+    if( text && text.length > 0 ){
+    // if ('hi' === text.toLowerCase()) {
         const keyboard = {
             inline_keyboard: [
                 [
