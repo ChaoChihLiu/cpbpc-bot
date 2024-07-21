@@ -17,6 +17,7 @@ const currentHour = moment_timezone().tz(timezone).hours();
 // bot.onText(/\/start/, (msg) => {
 bot.on('message', (msg) => {
     const chatId = msg.chat.id;
+    console.info(`input is ${msg.text}`);
 
     const inlineKeyboard = {
         reply_markup: {
