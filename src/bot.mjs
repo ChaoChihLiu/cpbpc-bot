@@ -7,6 +7,7 @@ import properties from 'properties';
 import {readConfig} from "./config.mjs";
 import {readSheetWithRange} from "./accessSheets.mjs";
 import moment from "moment/moment.js";
+import moment_timezone from 'moment-timezone'
 import * as _ from 'lodash';
 
 // Replace 'YOUR_API_TOKEN' with your bot's API token
@@ -33,12 +34,14 @@ const handleMessage = async (message) => {
     const chatId = message.chat.id;
     const text = message.text;
 
+    
+
     if ('hi' === text.toLowerCase()) {
         const keyboard = {
             inline_keyboard: [
                 [
                     { text: 'Remembrance', callback_data: 'remembrance' },
-                    { text: 'Sign up Open Jio', callback_data: 'signup_open_jio' }
+                    { text: 'Sign up Open Jio', callback_data: 'open_jio_form' }
                 ]
             ]
         };
@@ -49,9 +52,10 @@ const handleMessage = async (message) => {
 };
 
 
-const month = moment().format('MMMM')
-const this_date = moment().format('DD')
-const currentHour = moment().hours();
+const timezone = 'Asia/Singapore'
+const month = moment_timezone().tz(timezone).format('MMMM')
+const this_date = moment_timezone().tz(timezone).format('DD')
+const currentHour = moment_timezone().tz(timezone).hours();
 const handleCallbackQuery = async (callbackQuery) => {
     const chatId = callbackQuery.message.chat.id;
     const data = callbackQuery.data;
