@@ -71,7 +71,7 @@ bot.on('callback_query', async (callbackQuery) => {
                     [{ text: 'Button 3' }, { text: 'Button 4' }]
                 ],
                 resize_keyboard: true,
-                one_time_keyboard: true
+                one_time_keyboard: false
             }
         };
 
