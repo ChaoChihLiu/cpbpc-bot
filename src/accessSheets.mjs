@@ -36,7 +36,7 @@ async function readSheet() {
 
     const rows = response.data.values;
     if (rows.length) {
-        console.log('Data from the spreadsheet:');
+        // console.log('Data from the spreadsheet:');
         rows.map((row) => {
             console.log(row);
         });

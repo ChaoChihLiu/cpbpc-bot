@@ -10,9 +10,6 @@ const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
 const timezone = 'Asia/Singapore'
-const month = moment_timezone().tz(timezone).format('MMMM')
-const this_date = moment_timezone().tz(timezone).format('DD')
-const currentHour = moment_timezone().tz(timezone).hours();
 
 // bot.onText(/\/start/, (msg) => {
 bot.on('message', (msg) => {
@@ -41,6 +38,9 @@ bot.on('callback_query', async (callbackQuery) => {
     const chatId = callbackQuery.message.chat.id;
 
     let current_moment = "Morning"
+    const month = moment_timezone().tz(timezone).format('MMMM')
+    const this_date = moment_timezone().tz(timezone).format('DD')
+    const currentHour = moment_timezone().tz(timezone).hours();
     if (currentHour >= 12) {
         current_moment = "Evening"
     }
