@@ -14,7 +14,7 @@ let WEBHOOK_URL = process.env.WEBHOOK_HOST
 const app = express()
 app.use(bodyParser.json())
 
-const bot = new TelegramBot(API_TOKEN, { polling: true });
+const bot = new TelegramBot(API_TOKEN);
 
 app.post(`/${API_TOKEN}`, (req, res) => {
     const update = req.body
