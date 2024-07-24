@@ -15,10 +15,10 @@ fi
 
 # Use awk to replace the value of the specified property
 awk -v prop="${PROPERTY_NAME}" -v value="${NEW_VALUE}" '
-    BEGIN { found = 0 }
-    $1 ~ "^" prop "=" {
+    BEGIN { FS="="; OFS="="; found=0 }
+    $1 == prop {
         $2 = value
-        found = 1
+        found=1
     }
     { print }
     END {
