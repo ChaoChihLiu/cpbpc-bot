@@ -1,12 +1,5 @@
-import fs from 'fs';
-import { google } from 'googleapis';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import {readConfig, readConfigFromFile} from "./config.mjs";
+import {google} from 'googleapis';
 
-// Load the service account key JSON file
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 const KEYFILEPATH = './.gcp_secret';
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 

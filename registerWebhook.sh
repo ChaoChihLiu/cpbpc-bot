@@ -15,6 +15,8 @@ while IFS='=' read -r key value; do
     export "$key=$value"
 done < "$PROPERTIES_FILE"
 
+echo $TELEGRAM_BOT_TOKEN
+
 curl -F "url=$WEBHOOK_HOST" "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook"
 
 curl -X GET "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getWebhookInfo"

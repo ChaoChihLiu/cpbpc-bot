@@ -2,10 +2,10 @@
   "name": "cpbpc-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "src/bot.mjs",
+  "main": "src/webhook.mjs",
   "type": "module",
   "scripts": {
-    "start": "node src/bot.mjs",
+    "start": "node src/webhook.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
