@@ -1,1 +1,1 @@
-git pull; npm install; ./restartBot.sh; tail -f nohup.out
+git pull; npm install; sudo ./restartBot.sh; tail -f nohup.out
