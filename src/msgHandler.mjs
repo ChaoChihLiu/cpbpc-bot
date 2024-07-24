@@ -122,7 +122,6 @@ export function handleMsg(msg, telegramBot){
             }
         }
         if( telegramBot ){
-            console.info(`111`);
             // bot.sendMessage(chatId, 'Welcome! Choose an option:', inlineKeyboard);
             try{
                 telegramBot.sendMessage(chatId, 'Welcome! Choose an option:', inlineKeyboard)
