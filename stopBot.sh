@@ -29,12 +29,12 @@
 #!/bin/bash
 
 # Find the process ID of the node script (bot.mjs)
-PID=$(ps -ef | grep 'node src/bot.mjs' | grep -v grep | awk '{print $2}')
+PID=$(ps -ef | grep 'lsof -i :89' | grep -v grep | awk '{print $2}')
 
 # Check if PID is found
 if [ -n "$PID" ]; then
     echo "Killing process with PID: $PID"
     kill -9 $PID
 else
-    echo "No process found for node src/bot.mjs"
+    echo "No process found for lsof -i :89"
 fi
