@@ -19,9 +19,10 @@ echo $TELEGRAM_BOT_TOKEN;
 echo $WEBHOOK_HOST;
 
 curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/deleteWebhook";
+echo "\n"
 
 curl -F "url=$WEBHOOK_HOST" -F "certificate=@/etc/pki/nginx/telegram/server.crt" "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook";
-
+echo "\n"
 curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getWebhookInfo";
 
 
