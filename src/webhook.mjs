@@ -16,7 +16,7 @@ app.use(bodyParser.json())
 
 const bot = new TelegramBot(API_TOKEN, { polling: true });
 
-app.post('/webhook', (req, res) => {
+app.post(`/${API_TOKEN}`, (req, res) => {
     const update = req.body
     console.info(`message is ${JSON.stringify(update)}`)
     if (update.message) {
