@@ -29,7 +29,7 @@
 #!/bin/bash
 
 # Find the process ID of the node script (bot.mjs)
-PID=$(ps -ef | grep 'lsof -i :89' | grep -v grep | awk '{print $2}')
+PID=$(lsof -i :89 | awk 'NR > 1 {print $2}')
 
 # Check if PID is found
 if [ -n "$PID" ]; then
