@@ -18,8 +18,8 @@ done < "$PROPERTIES_FILE"
 echo $TELEGRAM_BOT_TOKEN
 
 #curl -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook?url=$WEBHOOK_HOST"
-curl -X "POST" "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook"
-    -d "{'url': '$WEBHOOK_HOST'}"
-    -H 'Content-Type: application/json; charset=utf-8'
+curl -X "POST" "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook" \n
+    -d "{'url': '$WEBHOOK_HOST'}" \n
+    -H 'Content-Type: application/json; charset=utf-8' \n
 
 curl -X GET "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getWebhookInfo"
