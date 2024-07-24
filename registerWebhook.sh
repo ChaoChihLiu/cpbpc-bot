@@ -15,12 +15,13 @@ while IFS='=' read -r key value; do
     export "$key=$value"
 done < "$PROPERTIES_FILE"
 
-echo $TELEGRAM_BOT_TOKEN
-echo $WEBHOOK_HOST
+echo $TELEGRAM_BOT_TOKEN;
+echo $WEBHOOK_HOST;
 
-cmd="curl -F 'curl=$WEBHOOK_HOST' -F 'certificate=@/etc/pki/nginx/telegram/server.crt' 'https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook'"
-echo "$cmd"
-eval "$cmd"
-cmd="curl -X GET 'https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getWebhookInfo'"
-echo "$cmd"
-eval "$cmd"
+curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/deleteWebhook";
+
+curl -F "curl=$WEBHOOK_HOST" -F "certificate=@/etc/pki/nginx/telegram/server.crt" "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook";
+
+curl "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getWebhookInfo";
+
+
