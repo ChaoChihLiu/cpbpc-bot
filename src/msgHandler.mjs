@@ -1,8 +1,8 @@
-import {cleanState, getState, isWaitForInput, keepState} from "./userstat.mjs";
+import {cleanState, getState, hashHeader, isWaitForInput, keepState} from "./userstat.mjs";
 import mysql from "mysql2";
-import crypto from "crypto";
+import logger from './service/logger.mjs'
 import moment_timezone from "moment-timezone";
-import {readSheetWithRange} from "./accessSheets.mjs";
+import {readSheetWithRange} from "./service/accessSheets.mjs";
 import env from 'dotenv'
 
 env.config()
@@ -15,24 +15,11 @@ const dbConn = mysql.createConnection({
     database: process.env.EN_DB
 });
 
-function hashInput(input) {
-    var input_str = input
-    if( (typeof input) !== 'string' ){
-        input_str = JSON.stringify(input)
-    }
-
-    const hash = crypto.createHash('sha256');
-    hash.update(input_str);
-    const hashedInput = hash.digest('hex');
-
-    return hashedInput;
-}
-
 export function handleMsg(msg, telegramBot){
     const chatId = msg.chat.id;
-    const userstat_key = hashInput(msg.from)
-    console.info(`handleMsg input is ${JSON.stringify(msg)}`);
-    // console.info( `sha 'from' information ${hashInput(msg.from)}` );
+    const userstat_key = hashHeader(msg.from)
+    logger.info(`handleMsg input is ${JSON.stringify(msg)}`);
+    // logger.info( `sha 'from' information ${hashHeader(msg.from)}` );
 
     if( isWaitForInput(userstat_key) ){
         const keyword = msg.text
@@ -50,7 +37,7 @@ export function handleMsg(msg, telegramBot){
     limit 10
     ;`, [`%${keyword}%`], (error, results, fields) => {
                 if (error) {
-                    console.error('Error executing query:', error);
+                    logger.error('Error executing query:', error);
                     if( telegramBot ){
                         // bot.sendMessage(chatId, 'Oops! Bot has something wrong');
                         telegramBot.sendMessage(chatId, 'Oops! Bot has something wrong')
@@ -64,7 +51,7 @@ export function handleMsg(msg, telegramBot){
                 })
 
                 // Print the results
-                // console.log('Results:', results);
+                // logger.log('Results:', results);
                 if( telegramBot ){
                     // bot.sendMessage(chatId, list.join("\n"));
                     telegramBot.sendMessage(chatId, list.join("\n"))
@@ -84,7 +71,7 @@ export function handleMsg(msg, telegramBot){
     limit 10
     ;`, [`%${keyword}%`], (error, results, fields) => {
                 if (error) {
-                    console.error('Error executing query:', error);
+                    logger.error('Error executing query:', error);
                     if( telegramBot ){
                         // bot.sendMessage(chatId, 'Oops! Bot has something wrong');
                         telegramBot.sendMessage(chatId, 'Oops! Bot has something wrong')
@@ -97,7 +84,7 @@ export function handleMsg(msg, telegramBot){
                 })
 
                 // Print the results
-                // console.log('Results:', results);
+                // logger.log('Results:', results);
                 if( telegramBot ){
                     // bot.sendMessage(chatId, list.join("\n"));
                     telegramBot.sendMessage(chatId, list.join("\n"))
@@ -105,7 +92,7 @@ export function handleMsg(msg, telegramBot){
                 cleanState(userstat_key)
 
                 // Print the results
-                // console.log('Results:', results);
+                // logger.log('Results:', results);
             });
         }
 
@@ -126,7 +113,7 @@ export function handleMsg(msg, telegramBot){
             try{
                 telegramBot.sendMessage(chatId, 'Welcome! Choose an option:', inlineKeyboard)
             }catch (e){
-                console.info(e)
+                logger.info(e)
             }
         }
     }
@@ -134,9 +121,9 @@ export function handleMsg(msg, telegramBot){
 
 
 export async function handleCallback(msg, telegramBot){
-    console.info(`handleCallback input is ${JSON.stringify(msg)}`);
-    const userstat_key = hashInput(msg.from)
-    // console.info( `sha 'from' information ${hashInput(callbackQuery.from)}` );
+    logger.info(`handleCallback input is ${JSON.stringify(msg)}`);
+    const userstat_key = hashHeader(msg.from)
+    // logger.info( `sha 'from' information ${hashHeader(callbackQuery.from)}` );
     const message = msg.message;
     const data = msg.data;
     const chatId = msg.message.chat.id;
@@ -156,9 +143,9 @@ export async function handleCallback(msg, telegramBot){
         let json = ''
         jsons.forEach((value, key) => {
             const rem_date = value[0]
-            // console.info( `content is ${content}, type of ${typeof content}` )
+            // logger.info( `content is ${content}, type of ${typeof content}` )
             if (rem_date == this_date && value[1].includes(current_moment)) {
-                console.info(`content is ${value[1]}, type of ${typeof value[1]}`)
+                logger.info(`content is ${value[1]}, type of ${typeof value[1]}`)
                 json = value[1]
             }
         })
@@ -168,7 +155,7 @@ export async function handleCallback(msg, telegramBot){
             // bot.sendMessage(message.chat.id, content);
             await telegramBot.sendMessage(message.chat.id, content)
         }else{
-            console.info(`content is ${content}`)
+            logger.info(`content is ${content}`)
         }
     } //end of remembrance
 

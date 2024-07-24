@@ -1,4 +1,5 @@
 import {google} from 'googleapis';
+import logger from './logger.mjs'
 
 const KEYFILEPATH = './.gcp_secret';
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
@@ -29,12 +30,12 @@ async function readSheet() {
 
     const rows = response.data.values;
     if (rows.length) {
-        // console.log('Data from the spreadsheet:');
+        // logger.info('Data from the spreadsheet:');
         // rows.map((row) => {
-        //     console.log(row);
+        //     logger.info(row);
         // });
     } else {
-        console.log('No data found.');
+        logger.info('No data found.');
     }
 }
 
@@ -51,13 +52,13 @@ export async function readSheetWithRange( spreadsheetId, range ) {
 
     const rows = response.data.values;
     if (rows.length) {
-        // console.log('Data from the spreadsheet:');
+        // logger.info('Data from the spreadsheet:');
         // rows.map((row) => {
-        //     console.log(row);
+        //     logger.info(row);
         // });
         return rows
     } else {
-        console.log('No data found.');
+        logger.info('No data found.');
     }
 
     return []
@@ -85,7 +86,7 @@ async function writeSheet() {
         resource,
     });
 
-    console.log(`${response.data.updatedCells} cells updated.`);
+    logger.info(`${response.data.updatedCells} cells updated.`);
 }
 
 // Uncomment the function you want to use

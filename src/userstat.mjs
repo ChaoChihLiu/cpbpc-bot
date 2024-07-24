@@ -1,3 +1,5 @@
+import crypto from "crypto";
+
 const userStates = {}
 
 export function keepState(user_sha, state){
@@ -31,4 +33,17 @@ export function cleanState(user_sha){
     }
 
     userStates[user_sha]=''
+}
+
+export function hashHeader(input) {
+    var input_str = input
+    if( (typeof input) !== 'string' ){
+        input_str = JSON.stringify(input)
+    }
+
+    const hash = crypto.createHash('sha256');
+    hash.update(input_str);
+    const hashedInput = hash.digest('hex');
+
+    return hashedInput;
 }
