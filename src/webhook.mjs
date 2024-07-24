@@ -16,19 +16,19 @@ app.use(bodyParser.json())
 
 const bot = new TelegramBot(API_TOKEN, { polling: true });
 
-app.post('/webhook', (req, res) => {
+app.post('/webhook', async (req, res) => {
     const update = req.body
     console.info(`message is ${JSON.stringify(update)}`)
     if (update.message) {
         handleMessage(update.message);
     } else if (update.callback_query) {
-        handleCallbackQuery(update.callback_query);
+        await handleCallbackQuery(update.callback_query);
     }
 
     res.sendStatus(200);
 });
 
-const handleMessage = async (message) => {
+const handleMessage = (message) => {
     handleMsg(message, bot)
 };
 

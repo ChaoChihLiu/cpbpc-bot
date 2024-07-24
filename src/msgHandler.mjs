@@ -167,7 +167,7 @@ export async function handleCallback(msg, telegramBot){
         let content = json
         if( telegramBot ){
             // bot.sendMessage(message.chat.id, content);
-            telegramBot.sendMessage(message.chat.id, content)
+            await telegramBot.sendMessage(message.chat.id, content)
         }else{
             console.info(`content is ${content}`)
         }
@@ -208,7 +208,7 @@ export async function handleCallback(msg, telegramBot){
         keepState(userstat_key, `wait_for_input_${data.toLowerCase()}`)
         if( telegramBot ){
             // bot.sendMessage(chatId, `give me keyword`);
-            telegramBot.sendMessage(chatId, `give me keyword`)
+            await telegramBot.sendMessage(chatId, `give me keyword`)
         }
     }  //end of wait for input
 
