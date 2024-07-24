@@ -18,6 +18,6 @@ done < "$PROPERTIES_FILE"
 echo $TELEGRAM_BOT_TOKEN
 echo $WEBHOOK_HOST
 
-curl -X POST -H "Content-Type: application/json" -F "certificate=@/etc/pki/nginx/telegram/server.crt" "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook?url=$WEBHOOK_HOST"
+curl -X POST -H "Content-Type: application/json" -d "url=$WEBHOOK_HOST" -F "certificate=@/etc/pki/nginx/telegram/server.crt" "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setWebhook"
 
 curl -X GET "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getWebhookInfo"
