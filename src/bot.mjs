@@ -1,7 +1,9 @@
 import TelegramBot from 'node-telegram-bot-api'
 import env from 'dotenv';
-import {handleCallback, handleMsg} from "./msgHandler.mjs"
+import {handleCallback, handleMsg} from "./dispatcher.mjs"
 import logger from './service/logger.mjs'
+import cron from "node-cron"
+import {cleanStates} from "./userstat.mjs";
 
 
 env.config()
@@ -24,6 +26,11 @@ bot.on('callback_query', async (msg) => {
     } catch (e){
         logger.error(e)
     }
+});
+
+cron.schedule('* * * * *', () => {
+    logger.info("Running a task every minute")
+    cleanStates()
 });
 
 // Additional message handlers can be added here
