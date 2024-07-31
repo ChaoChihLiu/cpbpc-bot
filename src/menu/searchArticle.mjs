@@ -43,10 +43,12 @@ export async function handleWaitForInput(msg){
                                                                     left join cpbpc_categories cc on cc.id = cj.catid
                                                                     left join cpbpc_jevents_repetition cjr on cjr.eventdetail_id = cjv.evdet_id
                                                            where cc.alias in ('elder-s-page', 'pastoral-chat', 'rpg-adult')
-                                                             and cjv.state = 1
-                                                           order by match_score desc) as temp
+                                                             and  cjv.state = 1
+                                                           order by match_score desc
+                                                               limit 20
+                                                          ) as temp
                                                      where match_score > 0
-                                                     limit 10
+                                                     order by rp_id desc
                                                 `, parameters)
 
         logger.info(`rows is ${JSON.stringify(rows)}`)
