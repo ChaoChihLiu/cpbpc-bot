@@ -1,5 +1,4 @@
 import {getState, hashHeader, isWaitForInput, WAIT_FOR_INPUT} from "./userstat.mjs";
-import mysql from "mysql2";
 import logger from './service/logger.mjs'
 import env from 'dotenv'
 
@@ -10,13 +9,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 env.config()
-const dbConn = mysql.createConnection({
-    host: process.env.EN_DB_HOST,
-    port: process.env.EN_DB_PORT,
-    user: process.env.EN_DB_USER,
-    password: process.env.EN_DB_PASS,
-    database: process.env.EN_DB
-});
 
 const menu = {
     reply_markup: {
