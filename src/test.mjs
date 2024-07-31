@@ -1,24 +1,39 @@
-import moment from 'moment';
+import natural from "natural"
+import createConnection from "./service/dbConnPool.mjs"
 
-const today = moment().format('DD');
-console.log(today);
+async function findMatchingRecords(inputText) {
+    const tokenizer = new natural.WordTokenizer();
+    const tokens = tokenizer.tokenize(inputText);
 
-const month = moment().format('MMMM');
-console.log(month);
+    // Create a connection to the MySQL database
+    const connection = await createConnection()
 
+    // Construct the SQL query
+    const query = `
+    SELECT *,
+           ( ${tokens.map(token => `IF(content LIKE ?, 1, 0)`).join(' + ')} ) AS match_score
+    FROM your_table
+    ORDER BY match_score DESC
+    LIMIT 10
+  `;
 
-const now = moment();
-const currentHour = now.hours();
+    // Generate the parameter list
+    const parameters = tokens.map(token => `%${token}%`);
 
-if (currentHour >= 6 && currentHour < 12) {
+    console.info(query)
 
-    console.log("morning");
-} else if (currentHour >= 12 && currentHour < 18) {
+    // Execute the query
+    const [results] = await connection.execute(query, parameters);
 
-    console.log("afternoon");
-} else if (currentHour >= 18 && currentHour < 21) {
-    console.log("evening");
-} else {
-    console.log("night");
+    // Close the connection
+    // await connection.end();
+    //
+    // return results;
 }
 
+// Example usage
+findMatchingRecords('sample text to match').then(results => {
+    console.log(results);
+}).catch(error => {
+    console.error('Error:', error);
+});
