@@ -14,6 +14,7 @@ export function run(msg){
     let user_sha = hashHeader(msg.from)
     let current_moment = "Morning"
     const month = moment_timezone().tz(timezone).format('MMM')
+    logger.info( `month is ${month}` )
     const this_date = moment_timezone().tz(timezone).format('DD')
     const currentHour = moment_timezone().tz(timezone).hours();
     if (currentHour >= 12) {
