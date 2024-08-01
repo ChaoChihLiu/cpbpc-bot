@@ -29,8 +29,8 @@ export function run(msg){
             let json = ''
             jsons.forEach((value, key) => {
                 const rem_date = value[0]
-                // logger.info( `content is ${value}, type of ${typeof value}` )
-                if (rem_date == this_date && value[1].includes(current_moment)) {
+                if ((rem_date == this_date && value[1].includes(current_moment))
+                    || (rem_date.includes(this_date) && value[1].includes(current_moment))) {
                     logger.debug(`content is ${value[1]}, type of ${typeof value[1]}`)
                     json = value[1]
                 }

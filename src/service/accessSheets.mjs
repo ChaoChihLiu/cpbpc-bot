@@ -43,8 +43,6 @@ export async function readSheetWithRange( spreadsheetId, range ) {
     const authClient = await authenticate();
     const sheets = google.sheets({ version: 'v4', auth: authClient });
 
-    // const range = '2024-08!A1:C10'; // Adjust the range as needed
-
     const response = await sheets.spreadsheets.values.get({
         spreadsheetId,
         range,
