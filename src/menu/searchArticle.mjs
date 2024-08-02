@@ -2,8 +2,9 @@ import {cleanState, hashHeader, keepState, WAIT_FOR_INPUT} from "../userstat.mjs
 import logger from "../service/logger.mjs";
 import _ from 'lodash';
 import pool from "../service/dbConnPool.mjs";
-import {analyseSentence} from "../service/tokeniser.mjs";
 import env from 'dotenv';
+import {comprehendQuestion} from "../service/openAI.mjs";
+import {analyseArticle} from "../service/analyseRelevance.mjs";
 
 env.config();
 
@@ -14,20 +15,22 @@ export function run(msg) {
 
     keepState(user_sha, `${WAIT_FOR_INPUT}-${OBJ_NAME_SEARCH_ARTICLE}`);
 
-    return { text: `give me keyword` };
+    return { text: `give me keyword/question` };
 }
 
 export async function handleWaitForInput(msg) {
-    const tokens = analyseSentence(msg.text);
+    // const tokens = analyseSentence(msg.text);
+    const tokens = await comprehendQuestion(msg.text);
     logger.info(`question is ${msg.text}, tokens include [${tokens}]`);
     const parameters = tokens.map(token => `%${token}%`);
 
     try {
         // Directly use pool.query
-        const [rows, fields] = await pool.query(
+        let [rows, fields] = await pool.query(
             `SELECT *
              FROM (
-                 SELECT cjr.rp_id,
+                 SELECT cjr.rp_id as id,
+                        cjv.description as article,
                         cc.alias,
                         (${tokens.map(token => `IF(cjv.description LIKE ?, 1, 0)`).join(' + ')}) AS match_score
                  FROM cpbpc_jevents_vevdetail cjv
@@ -40,11 +43,11 @@ export async function handleWaitForInput(msg) {
                  LIMIT 20
              ) AS temp
              WHERE match_score > 0
-             ORDER BY rp_id DESC`,
+             ORDER BY id DESC`,
             parameters
         );
 
-        logger.info(`rows is ${JSON.stringify(rows)}`);
+        // logger.info(`rows is ${JSON.stringify(rows)}`);
         const userstat_key = hashHeader(msg.from);
         cleanState(userstat_key);
 
@@ -52,15 +55,18 @@ export async function handleWaitForInput(msg) {
             return { text: "no result" };
         }
 
+        rows = await analyseArticle(msg.text, rows)
+        logger.info(`result ${rows[0]}`)
+
         const list = rows.map((row) => {
             if (row['alias'] === 'elder-s-page') {
-                return `matched: ${row['match_score'] / tokens.length * 100} \n https://calvarypandan.sg/resources/elders-page/eventdetail/${row['rp_id']}`;
+                return `matched: ${row['relevance'] / tokens.length * 100} \n https://calvarypandan.sg/resources/elders-page/eventdetail/${row['id']}`;
             }
             if (row['alias'] === 'pastoral-chat') {
-                return `matched: ${row['match_score'] / tokens.length * 100} \n https://calvarypandan.sg/resources/pastoral-chat/eventdetail/${row['rp_id']}`;
+                return `matched: ${row['relevance'] / tokens.length * 100} \n https://calvarypandan.sg/resources/pastoral-chat/eventdetail/${row['id']}`;
             }
             if (row['alias'] === 'rpg-adult') {
-                return `matched: ${row['match_score'] / tokens.length * 100} \n https://calvarypandan.sg/resources/rpg/calendar/eventdetail/${row['rp_id']}`;
+                return `matched: ${row['relevance'] / tokens.length * 100} \n https://calvarypandan.sg/resources/rpg/calendar/eventdetail/${row['id']}`;
             }
         }).filter(Boolean);
 
