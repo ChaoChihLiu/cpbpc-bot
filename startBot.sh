@@ -1,4 +1,4 @@
 #!/bin/bash
-./randomPath.sh
+#./randomPath.sh
 ./registerWebhook.sh
 npm start
