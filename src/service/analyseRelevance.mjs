@@ -1,6 +1,3 @@
-import {comprehendQuestion} from "./openAI.mjs";
-import logger from "../service/logger.mjs";
-
 const MIN_IDF = 0.1;
 
 class Document {
@@ -209,13 +206,12 @@ function findDocument(documents, documentId) {
     return documents.find((doc) => doc.id == documentId) || null;
 }
 
-export async function analyseArticle(question, rows){
+export async function analyseArticle(focusWords, rows){
     const documents = []
     rows.forEach((row, key) => {
         documents.push(new Document(row['id'], removeHtmlTag(row['article'])))
     })
     
-    const focusWords = await comprehendQuestion(question)
     const documentTfIdfVectors = computeTfIdfVectors(documents, focusWords)
     const queryTfIdfVector = computeQueryTfIdfVector(focusWords)
     const rankingResults = relevanceRanking(documents, documentTfIdfVectors, queryTfIdfVector)
@@ -229,8 +225,7 @@ export async function analyseArticle(question, rows){
                     }
                 })
     });
-
-    logger.info(`first row is ${newResult[0]}`)
+    
     return newResult
 }
 

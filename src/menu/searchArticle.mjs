@@ -55,8 +55,7 @@ export async function handleWaitForInput(msg) {
             return { text: "no result" };
         }
 
-        rows = await analyseArticle(msg.text, rows)
-        logger.info(`result ${rows[0]}`)
+        rows = await analyseArticle(tokens, rows)
 
         const list = rows.map((row) => {
             if (row['alias'] === 'elder-s-page') {

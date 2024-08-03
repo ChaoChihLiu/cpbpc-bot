@@ -44,7 +44,7 @@ function genCompletionJsonInput(text) {
 
 function rephraseQuestion(question) {
     return `Comprehend the meaning of the following question and provide keywords or key phrases only,
-                including synonyms of keywords/key phrases: ${question}
+                including synonyms of keywords/key phrases in biblical context: ${question}
                 and please organise your answer in array only`;
 }
 
