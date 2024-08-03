@@ -1,5 +1,6 @@
 import axios from 'axios'
 import env from 'dotenv'
+import logger from "./logger.mjs";
 
 env.config()
 
@@ -7,6 +8,7 @@ const getOpenAIKey = () => process.env.OPENAI_API_KEY;
 
 export async function comprehendQuestion(quesiton){
     let result = await createCompletions(rephraseQuestion(quesiton))
+    logger.info(`openAI result ${JSON.stringify(result)}`)
     return JSON.parse(result['choices'][0]['message']['content'])
 }
 
