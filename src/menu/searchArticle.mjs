@@ -80,7 +80,7 @@ export async function handleWaitForInput(msg) {
             in boolean mode
             )
         ORDER BY relevance_score DESC
-        LIMIT 50
+        LIMIT 20
        `
     try {
         // Directly use pool.query
@@ -97,7 +97,7 @@ export async function handleWaitForInput(msg) {
         // rows = await analyseArticle(synonyms, rows)
 
         const list = rows
-            .filter((row) => row['relevance'] >= 10)
+            // .filter((row) => row['relevance'] >= 10)
             .map((row) => {
                 let score = new decimal(row['relevance_score']).toDecimalPlaces(2).toString()
                 if (row['alias'] === 'elder-s-page') {
