@@ -5,6 +5,7 @@ import pool from "../service/dbConnPool.mjs";
 import env from 'dotenv';
 import {comprehendQuestion} from "../service/openAI.mjs";
 import {analyseArticle} from "../service/analyseRelevance.mjs";
+import mysql from "mysql2/promise";
 
 env.config();
 
@@ -19,34 +20,42 @@ export function run(msg) {
 }
 
 export async function handleWaitForInput(msg) {
-    // const tokens = analyseSentence(msg.text);
-    const tokens = await comprehendQuestion(msg.text);
-    logger.info(`question is ${msg.text}, tokens include [${tokens}]`);
-    const parameters = tokens.map(token => `%${token}%`);
+    // const musts = tokenize(msg.text);
+    const synonyms = await comprehendQuestion(msg.text)
+    const musts = synonyms.slice(0, 5).map(must => `+${must}`)
+    logger.info(`question is ${msg.text}, musts include [${musts}], synonyms include [${synonyms}]`);
+    const parameters = synonyms.map(token => `%${token}%`);
 
-    try {
-        // Directly use pool.query
-        let [rows, fields] = await pool.query(
-            `SELECT *
+
+    let queryStat = `SELECT *
              FROM (
                  SELECT cjr.rp_id as id,
                         cjv.description as article,
-                        cc.alias,
-                        (${tokens.map(token => `IF(cjv.description LIKE ?, 1, 0)`).join(' + ')}) AS match_score
+                        cc.alias
+--                         ,(${synonyms.map(synonym => `IF(cjv.description LIKE ?, 1, 0)`).join(' + ')}) AS match_score
                  FROM cpbpc_jevents_vevdetail cjv
                  LEFT JOIN cpbpc_jevents_vevent cj ON cj.ev_id = cjv.evdet_id
                  LEFT JOIN cpbpc_categories cc ON cc.id = cj.catid
                  LEFT JOIN cpbpc_jevents_repetition cjr ON cjr.eventdetail_id = cjv.evdet_id
                  WHERE cc.alias IN ('elder-s-page', 'pastoral-chat', 'rpg-adult')
                    AND cjv.state = 1
-                 ORDER BY match_score DESC
+                    and match (cjv.description) AGAINST (
+                                '${synonyms.join(',').replaceAll( '\'', '\'\'')}'
+                                in natural language mode
+                            )
+                    and match (cjv.description) AGAINST (
+                                '${musts.join(',').replaceAll( '\'', '\'\'')}'
+                                in boolean mode
+                            )        
+--                  ORDER BY match_score DESC
                  LIMIT 20
              ) AS temp
-             WHERE match_score > 0
-             ORDER BY id DESC`,
-            parameters
-        );
-
+--              WHERE match_score > 0
+             `
+    try {
+        // Directly use pool.query
+        console.log( `query statement : ${mysql.format(queryStat, parameters)}`)
+        let [rows, fields] = await pool.query(queryStat,parameters);
         // logger.info(`rows is ${JSON.stringify(rows)}`);
         const userstat_key = hashHeader(msg.from);
         cleanState(userstat_key);
@@ -55,19 +64,20 @@ export async function handleWaitForInput(msg) {
             return { text: "no result" };
         }
 
-        rows = await analyseArticle(tokens, rows)
+        rows = await analyseArticle(synonyms, rows)
 
-        const list = rows.map((row) => {
-            if (row['alias'] === 'elder-s-page') {
-                return `matched: ${row['relevance'] / tokens.length * 100} \n https://calvarypandan.sg/resources/elders-page/eventdetail/${row['id']}`;
-            }
-            if (row['alias'] === 'pastoral-chat') {
-                return `matched: ${row['relevance'] / tokens.length * 100} \n https://calvarypandan.sg/resources/pastoral-chat/eventdetail/${row['id']}`;
-            }
-            if (row['alias'] === 'rpg-adult') {
-                return `matched: ${row['relevance'] / tokens.length * 100} \n https://calvarypandan.sg/resources/rpg/calendar/eventdetail/${row['id']}`;
-            }
-        }).filter(Boolean);
+        const list = rows.filter((row) => row['relevance'] > 0.2)
+            .map((row) => {
+                if (row['alias'] === 'elder-s-page') {
+                    return `matched: ${row['relevance']} \n https://calvarypandan.sg/resources/elders-page/eventdetail/${row['id']}`;
+                }
+                if (row['alias'] === 'pastoral-chat') {
+                    return `matched: ${row['relevance']} \n https://calvarypandan.sg/resources/pastoral-chat/eventdetail/${row['id']}`;
+                }
+                if (row['alias'] === 'rpg-adult') {
+                    return `matched: ${row['relevance']} \n https://calvarypandan.sg/resources/rpg/calendar/eventdetail/${row['id']}`;
+                }
+            });
 
         return { text: list.join("\n\n") };
     } catch (e) {
