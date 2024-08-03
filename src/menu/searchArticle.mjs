@@ -111,6 +111,10 @@ export async function handleWaitForInput(msg) {
                 }
             });
 
+        if( _.isEmpty(list) ){
+            return { text: "no result" };
+        }
+
         return { text: list.join("\n\n") };
     } catch (e) {
         logger.error(e);
