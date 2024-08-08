@@ -32,8 +32,10 @@ async function findMatchingRecords(inputText) {
 }
 
 // Example usage
-findMatchingRecords('sample text to match').then(results => {
-    console.log(results);
-}).catch(error => {
-    console.error('Error:', error);
-});
+let input = '{"keywords":["wear", "jeans", "sunday", "worship", "service"],"synonyms":["don", "denim", "Sabbath", "praise", "ceremony", "put on", "trousers", "adoration", "ritual", "religious gathering"]}';
+
+let jsonObject = JSON.parse(input)
+for (const [key, value] of Object.entries(jsonObject)) {
+    console.log(`Key: ${key}`);
+    console.log(`Values: ${value.join(', ')}`);
+}

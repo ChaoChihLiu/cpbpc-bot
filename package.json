@@ -15,6 +15,7 @@
     "@google-cloud/local-auth": "^3.0.1",
     "axios": "^1.7.3",
     "body-parser": "^1.20.2",
+    "compromise": "^14.14.0",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
@@ -25,9 +26,11 @@
     "moment-timezone": "^0.5.45",
     "mysql2": "^3.10.3",
     "natural": "^7.1.0",
+    "natural-sort": "^1.0.0",
     "node-cron": "^3.0.3",
     "node-fetch": "^3.3.2",
     "node-telegram-bot-api": "^0.66.0",
-    "properties": "^1.2.1"
+    "properties": "^1.2.1",
+    "textrank": "^1.0.5"
   }
 }

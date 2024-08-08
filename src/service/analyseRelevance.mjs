@@ -1,3 +1,5 @@
+import nlp from "compromise";
+
 const MIN_IDF = 0.1;
 
 class Document {
@@ -261,3 +263,40 @@ export async function analyseArticle(focusWords, rows){
 // }
 //
 // main();
+
+
+// function textrankFunction(){
+//
+//     const settings = {
+//         topN: 5,
+//         // Assuming the library supports a language setting for stopword removal
+//         language: 'english',
+//         // Additional settings can be specified here as required
+//     };
+//
+//     const article1 = removeHtmlTag(getText1())
+//     let textrank = new TextRank(article1, settings)
+//     let keywords = textrank.extractSummary()
+//     console.log(keywords);
+//
+//     const article2 = removeHtmlTag(getText2())
+//     textrank = new TextRank(article2, settings)
+//     keywords = textrank.extractSummary();
+//     console.log(keywords);
+//
+//     const article3 = removeHtmlTag(getText3())
+//     textrank = new TextRank(article3, settings)
+//     keywords = textrank.extractSummary();
+//     console.log(keywords);
+// }
+//
+// textrankFunction()
+
+function compromiseFunction(){
+    const article1 = removeHtmlTag(getText1())
+    const doc = nlp(article1);
+    const nouns = doc.nouns().out('array'); // Extracts all noun phrases
+
+    console.log(nouns);
+}
+compromiseFunction()
