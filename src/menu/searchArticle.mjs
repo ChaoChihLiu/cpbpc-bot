@@ -111,7 +111,7 @@ export async function handleWaitForInput(msg) {
         SELECT cjr.rp_id as id,
                cjv.description as article,
                cc.alias
-                ,MATCH (cjv.description, cjv.summary) AGAINST (
+                ,MATCH (cjv.description) AGAINST (
                       ? IN NATURAL LANGUAGE MODE
                 ) AS relevance_score
         FROM cpbpc_jevents_vevdetail cjv
@@ -120,10 +120,10 @@ export async function handleWaitForInput(msg) {
             LEFT JOIN cpbpc_jevents_repetition cjr ON cjr.eventdetail_id = cjv.evdet_id
         WHERE cc.alias IN ('elder-s-page', 'pastoral-chat', 'rpg-adult')
           AND cjv.state = 1
-          and match (cjv.description, cjv.summary) AGAINST (
+          and match (cjv.description) AGAINST (
                 ? in natural language mode
             )
-          and match (cjv.description, cjv.summary) AGAINST (
+          and match (cjv.description) AGAINST (
             ? in boolean mode
             )
           and cjv.evdet_id <> '5870'
