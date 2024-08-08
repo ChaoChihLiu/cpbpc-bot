@@ -33,11 +33,11 @@ async function runAllPromiseWithKeywords(question) {
         let synonyms = []
         results.forEach((result) => {
             if( _.isEmpty(result['keywords']) != true ){
-                must = [...must, result['keywords']]
+                must = [...must, ...result['keywords']]
             }
 
             if( _.isEmpty(result['synonyms']) != true ){
-                synonyms = [...synonyms, result['synonyms']]
+                synonyms = [...synonyms, ...result['synonyms']]
             }
         })
 
@@ -98,17 +98,20 @@ export async function handleWaitForInput(msg) {
         return { text: "no result, cannot identify synonyms" };
     }
 
+    logger.info(`keyword type ${typeof keywords}`);
     logger.info(`question is ${msg.text}, musts include [${keywords}], synonyms include [${synonyms}]`);
 
-    let synonyms_natural_mode = _.trim(synonyms.map(item => `${item}`).join(' '))
-    let must_natural_mode = _.trim(keywords.map(item => `${item}`).join(' '))
+    // let synonyms_natural_mode = _.trim(synonyms.map(item => `${item}`).join(','))
+    // let must_natural_mode = _.trim(keywords.map(item => `+${item}`).join(','))
+    let array = [...keywords, ...synonyms]
+    let synonyms_natural_mode = _.trim(array.map(item => `${item}`).join(','))
     // must_natural_mode = "+" + must_natural_mode.replaceAll(' ', ' +').replaceAll(',',  ' +')
 
     let queryStat = `
         SELECT cjr.rp_id as id,
                cjv.description as article,
                cc.alias
-                ,MATCH (cjv.description) AGAINST (
+                ,MATCH (cjv.description, cjv.summary) AGAINST (
                       ? IN NATURAL LANGUAGE MODE
                 ) AS relevance_score
         FROM cpbpc_jevents_vevdetail cjv
@@ -117,19 +120,17 @@ export async function handleWaitForInput(msg) {
             LEFT JOIN cpbpc_jevents_repetition cjr ON cjr.eventdetail_id = cjv.evdet_id
         WHERE cc.alias IN ('elder-s-page', 'pastoral-chat', 'rpg-adult')
           AND cjv.state = 1
-          and match (cjv.description) AGAINST (
+          and match (cjv.description, cjv.summary) AGAINST (
                 ? in natural language mode
             )
-          and match (cjv.description) AGAINST (
-                ? in boolean mode
-            )
+          
           and cjv.evdet_id <> '5870'
         ORDER BY relevance_score DESC
         LIMIT 20
        `
     try {
         // Directly use pool.query
-        let parameters = [synonyms_natural_mode, synonyms_natural_mode, must_natural_mode]
+        let parameters = [synonyms_natural_mode, synonyms_natural_mode]
         logger.info( `query statement : ${mysql.format(queryStat, parameters)}`)
         let [rows, fields] = await pool.query(queryStat,parameters);
         // logger.info(`rows is ${JSON.stringify(rows)}`);

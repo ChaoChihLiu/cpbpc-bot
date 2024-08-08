@@ -1,5 +1,6 @@
 import natural from "natural"
 import createConnection from "./service/dbConnPool.mjs"
+import _ from "lodash";
 
 async function findMatchingRecords(inputText) {
     const tokenizer = new natural.WordTokenizer();
@@ -32,10 +33,6 @@ async function findMatchingRecords(inputText) {
 }
 
 // Example usage
-let input = '{"keywords":["wear", "jeans", "sunday", "worship", "service"],"synonyms":["don", "denim", "Sabbath", "praise", "ceremony", "put on", "trousers", "adoration", "ritual", "religious gathering"]}';
+let input = ["buy","company share","investment"];
 
-let jsonObject = JSON.parse(input)
-for (const [key, value] of Object.entries(jsonObject)) {
-    console.log(`Key: ${key}`);
-    console.log(`Values: ${value.join(', ')}`);
-}
+console.info(_.trim(input.map(item => `+${item}`).join(' ')))
