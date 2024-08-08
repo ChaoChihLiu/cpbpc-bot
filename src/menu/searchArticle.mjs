@@ -102,7 +102,7 @@ export async function handleWaitForInput(msg) {
     logger.info(`question is ${msg.text}, musts include [${keywords}], synonyms include [${synonyms}]`);
 
     // let synonyms_natural_mode = _.trim(synonyms.map(item => `${item}`).join(','))
-    // let must_natural_mode = _.trim(keywords.map(item => `+${item}`).join(','))
+    let must_natural_mode = _.trim(keywords.map(item => `+${item}`).join(','))
     let array = [...keywords, ...synonyms]
     let synonyms_natural_mode = _.trim(array.map(item => `${item}`).join(','))
     // must_natural_mode = "+" + must_natural_mode.replaceAll(' ', ' +').replaceAll(',',  ' +')
@@ -123,14 +123,16 @@ export async function handleWaitForInput(msg) {
           and match (cjv.description, cjv.summary) AGAINST (
                 ? in natural language mode
             )
-          
+          and match (cjv.description, cjv.summary) AGAINST (
+            ? in boolean mode
+            )
           and cjv.evdet_id <> '5870'
         ORDER BY relevance_score DESC
         LIMIT 20
        `
     try {
         // Directly use pool.query
-        let parameters = [synonyms_natural_mode, synonyms_natural_mode]
+        let parameters = [synonyms_natural_mode, synonyms_natural_mode, must_natural_mode]
         logger.info( `query statement : ${mysql.format(queryStat, parameters)}`)
         let [rows, fields] = await pool.query(queryStat,parameters);
         // logger.info(`rows is ${JSON.stringify(rows)}`);
