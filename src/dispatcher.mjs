@@ -101,6 +101,12 @@ export async function handleMsg(msg, telegramBot){
     }
 }
 
+function batchSend(telegramBot, chatId, returnedValue) {
+    logger.info(`I am here ${JSON.stringify(returnedValue)}`)
+    let tasks = returnedValue.map((task, key) => send(telegramBot, chatId, task.text, task.options));
+    Promise.all(tasks)
+}
+
 async function handleWaitForInput(moduleName, msg, telegramBot){
     
     const chatId = msg.chat.id;
@@ -118,18 +124,26 @@ async function handleWaitForInput(moduleName, msg, telegramBot){
         const result = await module['handleWaitForInput'](msg);
         if( typeof result === 'Promise' ){
             result.then(returnedValue => {
-                if( !returnedValue.options && !returnedValue.text ){
+                if (!returnedValue.options && !returnedValue.text) {
                     throw new Error("no value returned, should have text or text & options")
                 }
-                send(telegramBot, chatId, returnedValue.text, returnedValue.options)
+                if ((Array.isArray(returnedValue))) {
+                    batchSend(telegramBot,chatId, returnedValue)
+                }else {
+                    send(telegramBot, chatId, returnedValue.text, returnedValue.options)
+                }
 
             }).catch(error => {
-                logger.error(error)
+                logger.error(error.message)
                 send(telegramBot, chatId, "something wrong in server!")
             })
+        }else{
+            if ((Array.isArray(result))) {
+                batchSend(telegramBot,chatId, result)
+            }else {
+                send(telegramBot, chatId, result.text, result.options)
+            }
         }
-
-        send(telegramBot, chatId, result.text, result.options)
     }
 
 }

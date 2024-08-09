@@ -82,7 +82,7 @@ function addSomemore(keywords, question) {
 
 function truncateText(longText) {
     return _.truncate(longText, {
-        'length': 100,
+        'length': 300,
         'separator': ' ', 
         'omission': '...'
     });
@@ -130,17 +130,13 @@ export async function handleWaitForInput(msg) {
             , 'pastoral-chat'
             , 'rpg-adult')
           and match (cjv.paragraph) AGAINST (? IN NATURAL LANGUAGE MODE)
-          and match (cjv.paragraph) AGAINST (
-            ? in boolean mode
-            )
-
           and cjv.evdet_id <> '5870'
         ORDER BY relevance_score DESC
             LIMIT 10
        `
     try {
         // Directly use pool.query
-        let parameters = [synonyms_natural_mode, synonyms_natural_mode, must_natural_mode]
+        let parameters = [synonyms_natural_mode, synonyms_natural_mode]
         logger.info( `query statement : ${mysql.format(queryStat, parameters)}`)
         let [rows, fields] = await pool.query(queryStat,parameters);
         // logger.info(`rows is ${JSON.stringify(rows)}`);
@@ -172,9 +168,23 @@ export async function handleWaitForInput(msg) {
             return { text: "no result" };
         }
 
-        return { text: list.join("\n\n") };
+        let lists = splitArray(list, 2)
+        let finalResult = []
+        lists.forEach((list)=>{
+            finalResult.push({ text: list.join("\n\n") })
+        })
+        
+        return finalResult;
     } catch (e) {
         logger.error(e);
         return { text: "An error occurred while processing your request." };
     }
+}
+
+function splitArray(arr, size) {
+    const result = [];
+    for (let i = 0; i < arr.length; i += size) {
+        result.push(arr.slice(i, i + size));
+    }
+    return result;
 }

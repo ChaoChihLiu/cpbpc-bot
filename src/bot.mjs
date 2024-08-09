@@ -15,7 +15,7 @@ bot.on('message', (msg) => {
     try {
         handleMsg(msg, bot)
     } catch (e){
-        logger.error(e)
+        logger.error(e.message)
     }
 });
 
@@ -24,7 +24,7 @@ bot.on('callback_query', async (msg) => {
     try {
         await handleCallback(msg, bot)
     } catch (e){
-        logger.error(e)
+        logger.error(e.message)
     }
 });
 
