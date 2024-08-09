@@ -80,6 +80,14 @@ function addSomemore(keywords, question) {
     return keywords
 }
 
+function truncateText(longText) {
+    return _.truncate(longText, {
+        'length': 100,
+        'separator': ' ', 
+        'omission': '...'
+    });
+}
+
 export async function handleWaitForInput(msg) {
     // const musts = tokenize(msg.text);
     const question = _.toLower(msg.text)
@@ -102,33 +110,33 @@ export async function handleWaitForInput(msg) {
     logger.info(`question is ${msg.text}, musts include [${keywords}], synonyms include [${synonyms}]`);
 
     // let synonyms_natural_mode = _.trim(synonyms.map(item => `${item}`).join(','))
-    let must_natural_mode = _.trim(keywords.map(item => `+${item}`).join(','))
+    let must_natural_mode = _.trim(keywords.map(item => `${item}`).join(','))
     let array = [...keywords, ...synonyms]
     let synonyms_natural_mode = _.trim(array.map(item => `${item}`).join(','))
     // must_natural_mode = "+" + must_natural_mode.replaceAll(' ', ' +').replaceAll(',',  ' +')
 
     let queryStat = `
-        SELECT cjr.rp_id as id,
-               cjv.description as article,
+        SELECT cjr.rp_id     as id,
+               cjv.evdet_id,
+               cjv.paragraph as article,
                cc.alias
-                ,MATCH (cjv.description) AGAINST (
-                      ? IN NATURAL LANGUAGE MODE
-                ) AS relevance_score
-        FROM cpbpc_jevents_vevdetail cjv
-            LEFT JOIN cpbpc_jevents_vevent cj ON cj.ev_id = cjv.evdet_id
+                , MATCH (cjv.paragraph) AGAINST (? IN NATURAL LANGUAGE MODE) AS relevance_score
+        FROM cpbpc_jevents_vevdetail_paragraph cjv
+            LEFT JOIN cpbpc_jevents_vevent cj
+        ON cj.ev_id = cjv.evdet_id
             LEFT JOIN cpbpc_categories cc ON cc.id = cj.catid
             LEFT JOIN cpbpc_jevents_repetition cjr ON cjr.eventdetail_id = cjv.evdet_id
-        WHERE cc.alias IN ('elder-s-page', 'pastoral-chat', 'rpg-adult')
-          AND cjv.state = 1
-          and match (cjv.description) AGAINST (
-                ? in natural language mode
-            )
-          and match (cjv.description) AGAINST (
+        WHERE cc.alias IN ('elder-s-page'
+            , 'pastoral-chat'
+            , 'rpg-adult')
+          and match (cjv.paragraph) AGAINST (? IN NATURAL LANGUAGE MODE)
+          and match (cjv.paragraph) AGAINST (
             ? in boolean mode
             )
+
           and cjv.evdet_id <> '5870'
         ORDER BY relevance_score DESC
-        LIMIT 20
+            LIMIT 10
        `
     try {
         // Directly use pool.query
@@ -150,13 +158,13 @@ export async function handleWaitForInput(msg) {
             .map((row) => {
                 let score = new decimal(row['relevance_score']).toDecimalPlaces(2).toString()
                 if (row['alias'] === 'elder-s-page') {
-                    return `matched: ${score} \n https://calvarypandan.sg/resources/elders-page/eventdetail/${row['id']}`;
+                    return `matched: ${score} \n https://calvarypandan.sg/resources/elders-page/eventdetail/${row['id']} \n ${truncateText(row['article'])}`;
                 }
                 if (row['alias'] === 'pastoral-chat') {
-                    return `matched: ${score} \n https://calvarypandan.sg/resources/pastoral-chat/eventdetail/${row['id']}`;
+                    return `matched: ${score} \n https://calvarypandan.sg/resources/pastoral-chat/eventdetail/${row['id']} \n ${truncateText(row['article'])}`;
                 }
                 if (row['alias'] === 'rpg-adult') {
-                    return `matched: ${score} \n https://calvarypandan.sg/resources/rpg/calendar/eventdetail/${row['id']}`;
+                    return `matched: ${score} \n https://calvarypandan.sg/resources/rpg/calendar/eventdetail/${row['id']} \n ${truncateText(row['article'])}`;
                 }
             });
 
