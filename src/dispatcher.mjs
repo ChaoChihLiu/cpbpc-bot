@@ -101,10 +101,12 @@ export async function handleMsg(msg, telegramBot){
     }
 }
 
-function batchSend(telegramBot, chatId, returnedValue) {
-    logger.info(`I am here ${JSON.stringify(returnedValue)}`)
-    let tasks = returnedValue.map((task, key) => send(telegramBot, chatId, task.text, task.options));
-    Promise.all(tasks)
+async function batchSend(telegramBot, chatId, returnedValue) {
+    // let tasks = returnedValue.map((task, key) => send(telegramBot, chatId, task.text, task.options))
+    // Promise.all(tasks)
+    for (const message of returnedValue) {
+        await send(telegramBot, chatId, message.text, message.options)
+    }
 }
 
 async function handleWaitForInput(moduleName, msg, telegramBot){
@@ -197,6 +199,20 @@ export async function handleCallback(msg, telegramBot){
 }
 
 async function send( bot, chatId, text, options=undefined ){
+
+    if(!options){
+        options = {
+            "parse_mode": "Markdown",
+            "disable_web_page_preview": true
+        }
+    }else{
+        options = {
+            ...options,
+            "parse_mode": "Markdown",
+            "disable_web_page_preview": true
+        }
+    }
+
     try{
         if( !bot ){
             throw new ReferenceError("telegram bot not exist")

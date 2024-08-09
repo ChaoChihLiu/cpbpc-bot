@@ -19,8 +19,8 @@ function isBlank(value) {
 }
 
 function removeHtmlUnicode(str) {
-    str = str.replace(/&[a-zA-Z0-9#]+;/g, '');
-    str = str.replace(/&#x[0-9A-Fa-f]+;|&#\d+;/g, '');
+    str = str.replace(/&[a-zA-Z0-9#]+;/g, ' ');
+    str = str.replace(/&#x[0-9A-Fa-f]+;|&#\d+;/g, ' ');
 
     return str;
 }
@@ -42,6 +42,7 @@ async function findLastRead() {
         }
     })
 
+    logger.info(`start from ${result}`)
     return result
 }
 
