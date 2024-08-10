@@ -80,12 +80,19 @@ function addSomemore(keywords, question) {
     return keywords
 }
 
-function truncateText(longText) {
-    return _.truncate(longText, {
+function processText(keywords, longText) {
+    longText = _.trim(longText)
+    longText = _.truncate(_.trim(longText), {
         'length': 300,
         'separator': ' ', 
-        'omission': '...'
-    });
+        'omission': '...',
+    })
+
+    keywords.forEach((keyword) => {
+        longText = longText.replace(new RegExp(keyword, 'gi'), `**${keyword}**`)
+    })
+
+    return longText
 }
 
 export async function handleWaitForInput(msg) {
@@ -116,7 +123,7 @@ export async function handleWaitForInput(msg) {
     // must_natural_mode = "+" + must_natural_mode.replaceAll(' ', ' +').replaceAll(',',  ' +')
 
     let queryStat = `
-        SELECT cjr.rp_id     as id,
+        SELECT cjr.rp_id as id,
                cjv.evdet_id,
                cjv.paragraph as article,
                cc.alias
@@ -154,13 +161,13 @@ export async function handleWaitForInput(msg) {
             .map((row) => {
                 let score = new decimal(row['relevance_score']).toDecimalPlaces(2).toString()
                 if (row['alias'] === 'elder-s-page') {
-                    return `matched: ${score} \n https://calvarypandan.sg/resources/elders-page/eventdetail/${row['id']} \n ${truncateText(row['article'])}`;
+                    return `matched: ${score} \n https://calvarypandan.sg/resources/elders-page/eventdetail/${row['id']} \n ${processText(keywords, row['article'])}`;
                 }
                 if (row['alias'] === 'pastoral-chat') {
-                    return `matched: ${score} \n https://calvarypandan.sg/resources/pastoral-chat/eventdetail/${row['id']} \n ${truncateText(row['article'])}`;
+                    return `matched: ${score} \n https://calvarypandan.sg/resources/pastoral-chat/eventdetail/${row['id']} \n ${processText(keywords, row['article'])}`;
                 }
                 if (row['alias'] === 'rpg-adult') {
-                    return `matched: ${score} \n https://calvarypandan.sg/resources/rpg/calendar/eventdetail/${row['id']} \n ${truncateText(row['article'])}`;
+                    return `matched: ${score} \n https://calvarypandan.sg/resources/rpg/calendar/eventdetail/${row['id']} \n ${processText(keywords, row['article'])}`;
                 }
             });
 

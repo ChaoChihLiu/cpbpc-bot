@@ -203,13 +203,15 @@ async function send( bot, chatId, text, options=undefined ){
     if(!options){
         options = {
             "parse_mode": "Markdown",
-            "disable_web_page_preview": true
+            "disable_web_page_preview": true,
+            // "parse_mode": 'HTML'
         }
     }else{
         options = {
             ...options,
             "parse_mode": "Markdown",
-            "disable_web_page_preview": true
+            "disable_web_page_preview": true,
+            // "parse_mode": 'HTML'
         }
     }
 

@@ -25,8 +25,12 @@ function removeHtmlUnicode(str) {
     return str;
 }
 const removeHtmlTags = (str) => {
-    return str.replace(/<\/?[^>]+>/gi, '')
-};
+    return str.replace(/<\/?[^>]+>/gi, ' ')
+}
+
+const removeRedudantWhitspace = (input) =>{
+    return input.replace(/\s+/g, ' ')
+}
 
 async function findLastRead() {
 
@@ -71,7 +75,7 @@ async function saveParagraphs(paragraphs, evdet_id) {
 async function splitArticle(){
 
     let startFrom = await findLastRead()
-    const processSentence = (arr) => arr.map(item => removeLineBreaks(removeHtmlTags(removeHtmlUnicode(removeNbsp(item))))).filter(item => item.trim() !== '')
+    const processSentence = (arr) => arr.map(item => removeLineBreaks(removeRedudantWhitspace(removeHtmlTags(removeHtmlUnicode(removeNbsp(item)))))).filter(item => item.trim() !== '')
 
     let queryStat = `
          SELECT cjv.evdet_id,
