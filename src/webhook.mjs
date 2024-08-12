@@ -23,7 +23,7 @@ cron.schedule('* * * * *', () => {
     cleanStates()
 });
 
-app.post(`/webhook`, (req, res) => {
+app.post(`/${WEBHOOK_PATH}`, (req, res) => {
     const update = req.body
     console.info(`message is ${JSON.stringify(update)}`)
     if (update.message) {
