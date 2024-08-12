@@ -11,6 +11,7 @@ env.config()
 
 let API_TOKEN = process.env.TELEGRAM_BOT_TOKEN
 let WEBHOOK_PATH = process.env.WEBHOOK_PATH
+let WEBHOOK_PORT = process.env.WEBHOOK_PORT
 
 const app = express()
 app.use(bodyParser.json())
@@ -22,7 +23,7 @@ cron.schedule('* * * * *', () => {
     cleanStates()
 });
 
-app.post(`/${WEBHOOK_PATH}`, (req, res) => {
+app.post(`/webhook`, (req, res) => {
     const update = req.body
     console.info(`message is ${JSON.stringify(update)}`)
     if (update.message) {
@@ -42,8 +43,8 @@ const handleCallbackQuery = (callbackQuery) => {
     handleCallback(callbackQuery, bot)
 };
 
-app.listen(89, async () => {
-    console.log('Bot server is running on port 89');
+app.listen(WEBHOOK_PORT, async () => {
+    console.log(`Bot server is running on port ${WEBHOOK_PORT}`);
 });
 
 app.get('/health', (req, res) => {
