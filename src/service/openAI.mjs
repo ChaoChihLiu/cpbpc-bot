@@ -135,8 +135,8 @@ function rephraseKeywordQuestion(question) {
 }
 
 function rephraseSynonymQuestion(question) {
-    return `Comprehend the meaning of the following question, provide keywords and key phrases to question, as well as synonyms as many as possible, but don't help me rephrase question : ${question}
-                and follow this pattern '{"keywords":["key word", "key phrase"...], "synonyms":["synonym1", "synonym2",...]}' to organise your response`;
+    return `Comprehend the meaning of the following question, provide keywords and key phrases to question, as well as synonyms as relevant as possible, but don't help me rephrase question : ${question}
+                and follow this pattern '{"keywords":["keyword", "key phrase"...], "synonyms":["synonym1", "synonym2",...]}' to organise your response`;
     // return `Comprehend the meaning of the following question, and provide synonyms as many as possible, sort synonyms by the relevance level to the context of the question:
     //             ${question}
     //             and follow this pattern '["synonym1", "synonym2", "synonym3"...]' to organise your response`;
