@@ -92,6 +92,7 @@ function processText(keywords, longText) {
     //     longText = longText.replace(new RegExp(keyword, 'gi'), `**${keyword}**`)
     // })
 
+    logger.info(`omitted text ${longText}`)
     return longText
 }
 
