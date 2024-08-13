@@ -88,9 +88,9 @@ function processText(keywords, longText) {
         'omission': '...',
     })
 
-    keywords.forEach((keyword) => {
-        longText = longText.replace(new RegExp(keyword, 'gi'), `**${keyword}**`)
-    })
+    // keywords.forEach((keyword) => {
+    //     longText = longText.replace(new RegExp(keyword, 'gi'), `**${keyword}**`)
+    // })
 
     return longText
 }
