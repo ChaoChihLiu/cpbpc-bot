@@ -83,13 +83,13 @@ export async function findSynonyms(question){
 
         let kwFromDB = await querySynonyms(must)
         logger.info(`from DB ${JSON.stringify(kwFromDB)}`)
-        let result = kwFromDB
+        let returnedValue = kwFromDB
         if( !kwFromDB || _.isEmpty(kwFromDB) ){
-            updateSynonyms(must, kwFromDB)
-            result = synonyms
+            returnedValue = synonyms
+            updateSynonyms(must, returnedValue)
         }
 
-        return {'keywords': must, 'synonyms': result}
+        return {'keywords': must, 'synonyms': returnedValue}
         // return {'must': [], 'synonyms': []}
     } catch (e){
         logger.error(e)
