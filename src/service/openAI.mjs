@@ -81,14 +81,15 @@ export async function findSynonyms(question){
         let must = jsonObject['keywords']
         let synonyms = jsonObject['synonyms']
 
-        let resultFromDB = await querySynonyms(must)
-        logger.info(`from DB ${JSON.stringify(resultFromDB)}`)
-        let merged = [...resultFromDB, ...synonyms]
-        // if( !resultFromDB || _.isEmpty(resultFromDB) ){
-            updateSynonyms(must, merged)
-        // }
+        let kwFromDB = await querySynonyms(must)
+        logger.info(`from DB ${JSON.stringify(kwFromDB)}`)
+        let result = kwFromDB
+        if( !kwFromDB || _.isEmpty(kwFromDB) ){
+            updateSynonyms(must, kwFromDB)
+            result = synonyms
+        }
 
-        return {'keywords': must, 'synonyms': merged}
+        return {'keywords': must, 'synonyms': result}
         // return {'must': [], 'synonyms': []}
     } catch (e){
         logger.error(e)
