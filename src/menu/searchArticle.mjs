@@ -149,9 +149,9 @@ export async function handleWaitForInput(msg) {
                 , MATCH (cjv.paragraph) AGAINST (? IN NATURAL LANGUAGE MODE) AS relevance_score
         FROM cpbpc_jevents_vevdetail_paragraph cjv
             LEFT JOIN cpbpc_jevents_vevent cj
-            LEFT JOIN cpbpc_jevents_repetition cjr ON cjr.eventdetail_id = cjv.evdet_id
         ON cj.ev_id = cjv.evdet_id
             LEFT JOIN cpbpc_categories cc ON cc.id = cj.catid
+            LEFT JOIN cpbpc_jevents_repetition cjr ON cjr.eventdetail_id = cjv.evdet_id
         WHERE cc.alias IN ('elder-s-page'
             , 'pastoral-chat'
             , 'rpg-adult')
