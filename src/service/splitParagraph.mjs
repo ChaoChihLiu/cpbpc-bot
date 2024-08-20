@@ -73,11 +73,11 @@ async function saveParagraphs(paragraphs, evdet_id) {
 }
 
 async function splitArticle(){
+    try{
+        let startFrom = await findLastRead()
+        const processSentence = (arr) => arr.map(item => removeLineBreaks(removeRedudantWhitspace(removeHtmlTags(removeHtmlUnicode(removeNbsp(item)))))).filter(item => item.trim() !== '')
 
-    let startFrom = await findLastRead()
-    const processSentence = (arr) => arr.map(item => removeLineBreaks(removeRedudantWhitspace(removeHtmlTags(removeHtmlUnicode(removeNbsp(item)))))).filter(item => item.trim() !== '')
-
-    let queryStat = `
+        let queryStat = `
          SELECT cjv.evdet_id,
                cjv.description as article,
                cc.alias
@@ -88,29 +88,43 @@ async function splitArticle(){
          WHERE cc.alias IN ('elder-s-page', 'pastoral-chat', 'rpg-adult')
                 and cjv.evdet_id > ?
     `
-    let parameters = [startFrom]
-    let [rows, fields] = await pool.query(queryStat, parameters)
-    for (const row of rows) {
-        // let article = removeLineBreaks(removeHtmlTags(removeHtmlUnicode(removeNbsp( row['article']))))
-        let article = row['article']
-        let evdet_id = row['evdet_id']
-        if( isBlank(_.trim(article)) != true ){
-            let delimiter = '</p>'
-            if( _.isEqual(_.toLower(row['alias']), 'rpg-adult') ){
-                if( _.includes(article, '</div>') ){
-                    delimiter = '</div>'
-                } else{
-                    delimiter = '<br />'
-                }
-            }
-            let paragraphs = _.split(article, delimiter)
-            await saveParagraphs(processSentence(paragraphs), evdet_id)
+        let parameters = [startFrom]
+        let [rows, fields] = await pool.query(queryStat, parameters)
+        if( !rows || _.isEmpty(rows) ){
+            logger.info(`no new record`)
+            return
         }
+
+        for (const row of rows) {
+            // let article = removeLineBreaks(removeHtmlTags(removeHtmlUnicode(removeNbsp( row['article']))))
+            let article = row['article']
+            let evdet_id = row['evdet_id']
+            if (!isBlank(_.trim(article))) {
+                let delimiter = '</p>';
+                if (_.isEqual(_.toLower(row['alias']), 'rpg-adult')) {
+                    if (_.includes(article, '</div>')) {
+                        delimiter = '</div>';
+                    } else {
+                        delimiter = '<br />';
+                    }
+                }
+                logger.info(`Using delimiter: ${delimiter}`);
+
+                let paragraphs = _.split(article, delimiter);
+                let processedParagraphs = processSentence(paragraphs);
+                logger.info(`Processing ${processedParagraphs.length} paragraphs`);
+
+                await saveParagraphs(processedParagraphs, evdet_id);
+            } else {
+                logger.info('Article is blank');
+            }
+        }
+    }catch (e){
+        logger.error(e)
     }
+}//end of splitArticle
 
-}
-
-await splitArticle()
+splitArticle()
 
 // let input =`
 // <p>My dear readers,</p>

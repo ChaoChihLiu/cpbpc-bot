@@ -96,6 +96,24 @@ function processText(keywords, longText) {
     return longText
 }
 
+async function queryPublishId(rows) {
+    let queryStat = `
+        select rp_id from cpbpc_jevents_repetition cjr
+        where cjr.eventdetail_id = ?
+        order by rp_id desc
+            limit 1
+       `
+
+    rows = rows.map(async (row, key) => {
+        let parameters = [row['evdet_id']]
+        let [data, fields] = await pool.query(queryStat, parameters);
+        row['id'] = data['rp_id']
+        return row
+    })
+
+    return rows;
+}
+
 export async function handleWaitForInput(msg) {
     // const musts = tokenize(msg.text);
     const question = _.toLower(msg.text)
@@ -124,8 +142,7 @@ export async function handleWaitForInput(msg) {
     // must_natural_mode = "+" + must_natural_mode.replaceAll(' ', ' +').replaceAll(',',  ' +')
 
     let queryStat = `
-        SELECT cjr.rp_id as id,
-               cjv.evdet_id,
+        SELECT cjv.evdet_id,
                cjv.paragraph as article,
                cc.alias
                 , MATCH (cjv.paragraph) AGAINST (? IN NATURAL LANGUAGE MODE) AS relevance_score
@@ -133,7 +150,6 @@ export async function handleWaitForInput(msg) {
             LEFT JOIN cpbpc_jevents_vevent cj
         ON cj.ev_id = cjv.evdet_id
             LEFT JOIN cpbpc_categories cc ON cc.id = cj.catid
-            LEFT JOIN cpbpc_jevents_repetition cjr ON cjr.eventdetail_id = cjv.evdet_id
         WHERE cc.alias IN ('elder-s-page'
             , 'pastoral-chat'
             , 'rpg-adult')
@@ -147,6 +163,7 @@ export async function handleWaitForInput(msg) {
         let parameters = [synonyms_natural_mode, synonyms_natural_mode]
         logger.info( `query statement : ${mysql.format(queryStat, parameters)}`)
         let [rows, fields] = await pool.query(queryStat,parameters);
+        rows = await queryPublishId(rows);
         // logger.info(`rows is ${JSON.stringify(rows)}`);
         const userstat_key = hashHeader(msg.from);
         cleanState(userstat_key);
