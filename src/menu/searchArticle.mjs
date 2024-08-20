@@ -164,7 +164,7 @@ export async function handleWaitForInput(msg) {
         logger.info( `query statement : ${mysql.format(queryStat, parameters)}`)
         let [rows, fields] = await pool.query(queryStat,parameters);
         rows = await queryPublishId(rows);
-        // logger.info(`rows is ${JSON.stringify(rows)}`);
+        logger.info(`rows is ${JSON.stringify(rows)}`);
         const userstat_key = hashHeader(msg.from);
         cleanState(userstat_key);
 
