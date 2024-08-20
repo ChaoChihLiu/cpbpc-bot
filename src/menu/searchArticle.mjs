@@ -104,7 +104,7 @@ async function queryPublishId(rows) {
             limit 1
        `
 
-    rows = rows.map(async (row, key) => {
+    rows = rows.map(async (row) => {
         let parameters = [row['evdet_id']]
         let [data, fields] = await pool.query(queryStat, parameters);
         row['id'] = data['rp_id']
@@ -142,12 +142,14 @@ export async function handleWaitForInput(msg) {
     // must_natural_mode = "+" + must_natural_mode.replaceAll(' ', ' +').replaceAll(',',  ' +')
 
     let queryStat = `
-        SELECT cjv.evdet_id,
+        SELECT cjr.rp_id as id,
+               cjv.evdet_id,
                cjv.paragraph as article,
                cc.alias
                 , MATCH (cjv.paragraph) AGAINST (? IN NATURAL LANGUAGE MODE) AS relevance_score
         FROM cpbpc_jevents_vevdetail_paragraph cjv
             LEFT JOIN cpbpc_jevents_vevent cj
+            LEFT JOIN cpbpc_jevents_repetition cjr ON cjr.eventdetail_id = cjv.evdet_id
         ON cj.ev_id = cjv.evdet_id
             LEFT JOIN cpbpc_categories cc ON cc.id = cj.catid
         WHERE cc.alias IN ('elder-s-page'
@@ -163,7 +165,7 @@ export async function handleWaitForInput(msg) {
         let parameters = [synonyms_natural_mode, synonyms_natural_mode]
         logger.info( `query statement : ${mysql.format(queryStat, parameters)}`)
         let [rows, fields] = await pool.query(queryStat,parameters);
-        rows = await queryPublishId(rows);
+        // rows = await queryPublishId(rows);
         logger.info(`rows is ${JSON.stringify(rows)}`);
         const userstat_key = hashHeader(msg.from);
         cleanState(userstat_key);
