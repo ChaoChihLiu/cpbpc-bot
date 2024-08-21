@@ -142,7 +142,7 @@ export async function handleWaitForInput(msg) {
     // must_natural_mode = "+" + must_natural_mode.replaceAll(' ', ' +').replaceAll(',',  ' +')
 
     let queryStat = `
-        SELECT cjr.rp_id as id,
+        SELECT MAX(cjr.rp_id) as id,
                cjv.evdet_id,
                cjv.paragraph as article,
                cc.alias
@@ -157,6 +157,7 @@ export async function handleWaitForInput(msg) {
             , 'rpg-adult')
           and match (cjv.paragraph) AGAINST (? IN NATURAL LANGUAGE MODE)
           and cjv.evdet_id <> '5870'
+        GROUP BY cjv.evdet_id, cjv.paragraph, cc.alias
         ORDER BY relevance_score DESC
             LIMIT 10
        `
