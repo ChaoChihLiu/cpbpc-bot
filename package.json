@@ -33,6 +33,7 @@
     "node-telegram-bot-api": "^0.66.0",
     "p-limit": "^6.1.0",
     "properties": "^1.2.1",
+    "puppeteer": "^23.3.0",
     "textrank": "^1.0.5"
   }
 }
