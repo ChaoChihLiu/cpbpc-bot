@@ -17,6 +17,12 @@ const menu = {
                 { text: 'Remembrance', callback_data: 'remembrance' },
                 { text: 'Search Article', callback_data: 'searchArticle' },
             ],
+            // [{ text: '─────────', callback_data: 'separator', callback_game: {} }],
+            [
+                { text: 'Weekly-MWS', url: 'https://cpbpc-documents.s3-ap-southeast-1.amazonaws.com/Worship/pnw.pdf' },
+                { text: 'Weekly-SGH', url: 'https://cpbpc-documents.s3-ap-southeast-1.amazonaws.com/Worship/sgh.pdf' },
+            ],
+            // [{ text: '─────────', callback_data: 'separator', callback_game: {} }],
             [{ text: 'church website', url: 'https://calvarypandan.sg/' }]
         ]
     }
