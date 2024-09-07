@@ -17,6 +17,6 @@ async function openPdfInChrome(pdfUrl) {
 
 const pdfUrl = 'https://cpbpc-documents.s3-ap-southeast-1.amazonaws.com/Worship/sgh.pdf';
 export function run(msg) {
-    openPdfInChrome(pdfUrl)
-    return ''
+    // openPdfInChrome(pdfUrl)
+    return { text: `Click here to view the PDF: ${pdfUrl}` };
 }
