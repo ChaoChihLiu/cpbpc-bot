@@ -22,10 +22,10 @@ const menu = {
             //     { text: 'Weekly-MWS', url: 'https://cpbpc-documents.s3-ap-southeast-1.amazonaws.com/Worship/pnw.pdf' },
             //     { text: 'Weekly-SGH', url: 'https://cpbpc-documents.s3-ap-southeast-1.amazonaws.com/Worship/sgh.pdf' },
             // ],
-            [
-                { text: 'Weekly-MWS', callback_data: 'mwsWeekly' },
-                { text: 'Weekly-SGH', callback_data: 'sghWeekly' },
-            ],
+            // [
+            //     { text: 'Weekly-MWS', callback_data: 'mwsWeekly' },
+            //     { text: 'Weekly-SGH', callback_data: 'sghWeekly' },
+            // ],
             // [{ text: '─────────', callback_data: 'separator', callback_game: {} }],
             [{ text: 'church website', url: 'https://calvarypandan.sg/' }]
         ]
