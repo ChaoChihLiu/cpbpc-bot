@@ -18,10 +18,10 @@ const menu = {
                 { text: 'Search Article', callback_data: 'searchArticle' },
             ],
             // [{ text: '─────────', callback_data: 'separator', callback_game: {} }],
-            // [
-            //     { text: 'Weekly-MWS', url: 'https://cpbpc-documents.s3-ap-southeast-1.amazonaws.com/Worship/pnw.pdf' },
-            //     { text: 'Weekly-SGH', url: 'https://cpbpc-documents.s3-ap-southeast-1.amazonaws.com/Worship/sgh.pdf' },
-            // ],
+            [
+                { text: 'Weekly-MWS', url: 'https://d13vhl06g9ql7i.cloudfront.net/api/pnw' },
+                { text: 'Weekly-SGH', url: 'https://cpbpc-documents.s3-ap-southeast-1.amazonaws.com/Worship/sgh.pdf' },
+            ],
             // [
             //     { text: 'Weekly-MWS', callback_data: 'mwsWeekly' },
             //     { text: 'Weekly-SGH', callback_data: 'sghWeekly' },
