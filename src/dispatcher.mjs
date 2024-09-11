@@ -15,13 +15,14 @@ const menu = {
         inline_keyboard: [
             [
                 { text: 'Remembrance', callback_data: 'remembrance' },
+                { text: 'Weekly', callback_data: 'searchWeekly' },
                 { text: 'Search Article', callback_data: 'searchArticle' },
             ],
             // [{ text: '─────────', callback_data: 'separator', callback_game: {} }],
-            [
-                { text: 'Weekly-MWS', url: 'https://d13vhl06g9ql7i.cloudfront.net/api/pnw' },
-                { text: 'Weekly-SGH', url: 'https://cpbpc-documents.s3-ap-southeast-1.amazonaws.com/Worship/sgh.pdf' },
-            ],
+            // [
+            //     { text: 'Weekly-MWS', url: 'https://d13vhl06g9ql7i.cloudfront.net/api/pnw' },
+            //     { text: 'Weekly-SGH', url: 'https://cpbpc-documents.s3-ap-southeast-1.amazonaws.com/Worship/sgh.pdf' },
+            // ],
             // [
             //     { text: 'Weekly-MWS', callback_data: 'mwsWeekly' },
             //     { text: 'Weekly-SGH', callback_data: 'sghWeekly' },
@@ -54,60 +55,6 @@ export async function handleMsg(msg, telegramBot){
         let array = getState(userstat_key).split('-')
         let moduleName = array[array.indexOf(WAIT_FOR_INPUT)+1]
         handleWaitForInput(moduleName, msg, telegramBot)
-    //     const keyword = msg.text
-    //     const user_state = getState(userstat_key)
-    //
-    //     if( user_state.includes('elderpage') ){
-    //         dbConn.query(` select cjr.rp_id
-    // from cpbpc_jevents_vevdetail cjv
-    // left join cpbpc_jevents_vevent cj on cj.ev_id = cjv.evdet_id
-    // left join cpbpc_categories cc on cc.id = cj.catid
-    // left join cpbpc_jevents_repetition cjr on cjr.eventdetail_id  = cjv.evdet_id
-    //  where cc.alias in ( 'elder-s-page' )
-    // and cjv.description like ?
-    // order by cjv.evdet_id desc
-    // limit 10
-    // ;`, [`%${keyword}%`], (error, results, fields) => {
-    //             if (error) {
-    //                 logger.error('Error executing query:', error);
-    //                 send(telegramBot, chatId, 'Oops! Bot has something wrong')
-    //                 return;
-    //             }
-    //
-    //             const list = []
-    //             results.forEach((row, key) =>{
-    //                 list[key] = `https://calvarypandan.sg/resources/elders-page/eventdetail/${row['rp_id']}`
-    //             })
-    //
-    //             send(telegramBot, chatId, list.join("\n"))
-    //             cleanState(userstat_key)
-    //         });
-    //     }else if( user_state.includes('pastoralchat') ){
-    //         dbConn.query(` select cjr.rp_id
-    // from cpbpc_jevents_vevdetail cjv
-    // left join cpbpc_jevents_vevent cj on cj.ev_id = cjv.evdet_id
-    // left join cpbpc_categories cc on cc.id = cj.catid
-    // left join cpbpc_jevents_repetition cjr on cjr.eventdetail_id  = cjv.evdet_id
-    // where cc.alias in ( 'pastoral-chat' )
-    // and cjv.description like ?
-    // order by cjv.evdet_id desc
-    // limit 10
-    // ;`, [`%${keyword}%`], (error, results, fields) => {
-    //             if (error) {
-    //                 logger.error('Error executing query:', error);
-    //                 send(telegramBot, chatId, 'Oops! Bot has something wrong')
-    //             }
-    //
-    //             const list = []
-    //             results.forEach((row, key) =>{
-    //                 list[key] = `https://calvarypandan.sg/resources/pastoral-chat/eventdetail/${row['rp_id']}`
-    //             })
-    //
-    //             send(telegramBot, chatId, list.join("\n"))
-    //             cleanState(userstat_key)
-    //         });
-    //     }
-
     }
 }
 
