@@ -1,4 +1,4 @@
-import {hashHeader, keepState, WAIT_FOR_INPUT} from "../userstat.mjs";
+import {cleanState, hashHeader, keepState, WAIT_FOR_INPUT} from "../userstat.mjs";
 import _ from 'lodash';
 import env from 'dotenv';
 import decimal from 'decimal.js'
@@ -18,7 +18,8 @@ export function run(msg) {
 
 export async function handleWaitForInput(msg) {
     const hymnNum = _.toLower(msg.text)
-
+    const userstat_key = hashHeader(msg.from);
+    cleanState(userstat_key);
     return { text: `https://d13vhl06g9ql7i.cloudfront.net/hymn/testhymn/num/${hymnNum}` };
 }
 
