@@ -15,7 +15,10 @@ const menu = {
         inline_keyboard: [
             [
                 { text: 'Remembrance', callback_data: 'remembrance' },
-                { text: 'Weekly', callback_data: 'searchWeekly' },
+                { text: 'Weekly', callback_data: 'searchWeekly' }
+            ],
+            [
+                { text: 'Search Hymn', callback_data: 'searchHymn' },
                 { text: 'Search Article', callback_data: 'searchArticle' },
             ],
             // [{ text: '─────────', callback_data: 'separator', callback_game: {} }],
