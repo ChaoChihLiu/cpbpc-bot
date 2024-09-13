@@ -49,6 +49,9 @@ export async function handleWaitForInput(msg) {
         return { text: `Hymn ${hymnTitle} not exist` };
     }
     let urls = matchedObjects.map(transformToURL)
+    if( !urls || urls.length <= 0 ){
+        return { text: `Hymn ${hymnTitle} not exist` };
+    }
     
     return { text: urls.join('\n') };
 }
