@@ -83,7 +83,8 @@ async function searchS3ObjectsWithTitle(bucketName, toBeMatched, postfix) {
                 let objectKey = _.toLower(object.Key)
                 if ( objectKey.includes(`${toBeMatched}`) && objectKey.endsWith(postfix)) {
                     logger.info(`matched item ${object.Key}`)
-                    matchingKeys.push(object.Key);
+                    let result = _.split(object.Key, '/')[0]
+                    matchingKeys.push(result);
                 }
             }
 
