@@ -14,23 +14,88 @@ export function run(msg) {
 
     keepState(user_sha, `${WAIT_FOR_INPUT}-${OBJ_NAME_SEARCH_HYMN}`);
 
-    return { text: `give me hymn number` };
+    return { text: `give me hymn number/title` };
 }
 
+function isPureNumber(str) {
+    return /^\d+$/.test(str);
+}
+
+function isText(str) {
+    return isNaN(str) && typeof str === 'string';
+}
+
+const baseURL = 'https://d13vhl06g9ql7i.cloudfront.net/hymn/testhymn/num/'
 export async function handleWaitForInput(msg) {
-    const hymnNum = _.toLower(msg.text)
     const userstat_key = hashHeader(msg.from);
     cleanState(userstat_key);
 
-    let isExisted = await searchS3Objects( 'testhymn', hymnNum, '.jpg' )
-    if( !isExisted ){
-        return { text: `Hymn number ${hymnNum} not exist` };
+    let bucketName = 'testhymn'
+    const input = _.toLower(msg.text)
+    if( isPureNumber(input) ){
+        let hymnNum = input
+
+        let isExisted = await searchS3ObjectsWithNumber( bucketName, hymnNum, '.jpg' )
+        if( !isExisted ){
+            return { text: `Hymn number ${hymnNum} not exist` };
+        }
+        return { text: `${baseURL}${hymnNum}` };
     }
-    return { text: `https://d13vhl06g9ql7i.cloudfront.net/hymn/testhymn/num/${hymnNum}` };
+
+    let hymnTitle = input
+    let matchedObjects = await searchS3ObjectsWithTitle( bucketName, hymnTitle, '.jpg' )
+    if( !matchedObjects || matchedObjects.length <= 0 ){
+        return { text: `Hymn ${hymnTitle} not exist` };
+    }
+    let urls = matchedObjects.map(transformToURL)
+    
+    return { text: `urls.join('\n')` };
+}
+
+function transformToURL(item) {
+    const parts = item.split('_');
+    const num = parts[0];
+    return `${baseURL}${num}`;
 }
 
 const s3 = new S3Client({ region: 'ap-southeast-1' });
-async function searchS3Objects(bucketName, prefix, postfix) {
+async function searchS3ObjectsWithNumber(bucketName, prefix, postfix) {
+    return searchS3Objects( bucketName, prefix, postfix, true )
+}
+
+async function searchS3ObjectsWithTitle(bucketName, toBeMatched, postfix) {
+    // return searchS3Objects( bucketName, prefix, postfix, false )
+    let continuationToken = null;
+    const matchingKeys = [];
+
+    do {
+        const params = {
+            Bucket: bucketName,
+            ContinuationToken: continuationToken
+        };
+
+        try {
+            const data = await s3.send(new ListObjectsV2Command(params));
+
+            // Check if any object keys match the prefix and postfix criteria
+            for (const object of data.Contents) {
+                if ( object.Key.includes(`${toBeMatched}`) && object.Key.endsWith(postfix)) {
+                    matchingKeys.push(object.Key);
+                }
+            }
+
+            continuationToken = data.IsTruncated ? data.NextContinuationToken : null;
+
+        } catch (err) {
+            console.error('Error listing objects:', err);
+            return false; // Return false on error
+        }
+    } while (continuationToken);
+
+    return matchingKeys;
+}
+
+async function searchS3Objects(bucketName, toBeMatched, postfix, matchedStartWith) {
     let continuationToken = null;
 
     do {
@@ -45,8 +110,11 @@ async function searchS3Objects(bucketName, prefix, postfix) {
 
             // Check if any object keys match the prefix and postfix criteria
             for (const object of data.Contents) {
-                if (object.Key.startsWith(`${prefix}_`) && object.Key.endsWith(postfix)) {
-                    return true; 
+                if (matchedStartWith && object.Key.startsWith(`${toBeMatched}_`) && object.Key.endsWith(postfix)) {
+                    return true;
+                }
+                if (!matchedStartWith && object.Key.includes(`${toBeMatched}`) && object.Key.endsWith(postfix)) {
+                    return true;
                 }
             }
 
@@ -58,6 +126,7 @@ async function searchS3Objects(bucketName, prefix, postfix) {
         }
     } while (continuationToken);
 
-    return false; 
+    return false;
 }
+
 
