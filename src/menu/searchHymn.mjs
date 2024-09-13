@@ -49,7 +49,7 @@ export async function handleWaitForInput(msg) {
     }
     let urls = matchedObjects.map(transformToURL)
     
-    return { text: `urls.join('\n')` };
+    return { text: urls.join('\n') };
 }
 
 function transformToURL(item) {
