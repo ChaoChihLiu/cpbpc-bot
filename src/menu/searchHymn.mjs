@@ -46,11 +46,11 @@ export async function handleWaitForInput(msg) {
     let hymnTitle = input.replace(/\s+/g, '_');
     let matchedObjects = await searchS3ObjectsWithTitle( bucketName, hymnTitle, '.jpg' )
     if( !matchedObjects || matchedObjects.length <= 0 ){
-        return { text: `Hymn ${hymnTitle} not exist` };
+        return { text: `Hymn ${input} not exist` };
     }
     let urls = matchedObjects.map(transformToURL)
     if( !urls || urls.length <= 0 ){
-        return { text: `Hymn ${hymnTitle} not exist` };
+        return { text: `Hymn ${input} not exist` };
     }
     
     return { text: urls.join('\n') };
