@@ -1,5 +1,5 @@
 import {cleanState, hashHeader, keepState, WAIT_FOR_INPUT} from "../userstat.mjs";
-import _ from 'lodash';
+import _, {toLower} from 'lodash';
 import env from 'dotenv';
 import decimal from 'decimal.js'
 import {ListObjectsV2Command, S3Client} from '@aws-sdk/client-s3'
@@ -79,7 +79,8 @@ async function searchS3ObjectsWithTitle(bucketName, toBeMatched, postfix) {
 
             // Check if any object keys match the prefix and postfix criteria
             for (const object of data.Contents) {
-                if ( object.Key.includes(`${toBeMatched}`) && object.Key.endsWith(postfix)) {
+                let objectKey = toLower(object.Key)
+                if ( objectKey.includes(`${toBeMatched}`) && objectKey.endsWith(postfix)) {
                     matchingKeys.push(object.Key);
                 }
             }
