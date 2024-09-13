@@ -44,6 +44,7 @@ export async function handleWaitForInput(msg) {
     }
 
     let hymnTitle = input.replace(/\s+/g, '_');
+    logger.info( `hymn title to search ${hymnTitle}` )
     let matchedObjects = await searchS3ObjectsWithTitle( bucketName, hymnTitle, '.jpg' )
     if( !matchedObjects || matchedObjects.length <= 0 ){
         return { text: `Hymn ${input} not exist` };
