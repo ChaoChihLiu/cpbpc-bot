@@ -3,6 +3,7 @@ import _ from 'lodash';
 import env from 'dotenv';
 import decimal from 'decimal.js'
 import {ListObjectsV2Command, S3Client} from '@aws-sdk/client-s3'
+import logger from "../service/logger.mjs"
 
 env.config();
 
@@ -81,6 +82,7 @@ async function searchS3ObjectsWithTitle(bucketName, toBeMatched, postfix) {
             for (const object of data.Contents) {
                 let objectKey = _.toLower(object.Key)
                 if ( objectKey.includes(`${toBeMatched}`) && objectKey.endsWith(postfix)) {
+                    logger.info(`matched item ${object.Key}`)
                     matchingKeys.push(object.Key);
                 }
             }
@@ -88,7 +90,7 @@ async function searchS3ObjectsWithTitle(bucketName, toBeMatched, postfix) {
             continuationToken = data.IsTruncated ? data.NextContinuationToken : null;
 
         } catch (err) {
-            console.error('Error listing objects:', err);
+            logger.error('Error listing objects:', err);
             return false; // Return false on error
         }
     } while (continuationToken);
@@ -122,7 +124,7 @@ async function searchS3Objects(bucketName, toBeMatched, postfix, matchedStartWit
             continuationToken = data.IsTruncated ? data.NextContinuationToken : null;
 
         } catch (err) {
-            console.error('Error listing objects:', err);
+            logger.error('Error listing objects:', err);
             return false; // Return false on error
         }
     } while (continuationToken);
