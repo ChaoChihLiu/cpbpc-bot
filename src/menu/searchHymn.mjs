@@ -101,7 +101,7 @@ async function searchS3Objects(bucketName, toBeMatched, postfix, matchedStartWit
     do {
         const params = {
             Bucket: bucketName,
-            Prefix: `${prefix}_`,
+            Prefix: `${toBeMatched}_`,
             ContinuationToken: continuationToken
         };
 
