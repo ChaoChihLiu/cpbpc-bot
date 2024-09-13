@@ -93,7 +93,7 @@ async function searchS3ObjectsWithTitle(bucketName, toBeMatched, postfix) {
         }
     } while (continuationToken);
 
-    return matchingKeys;
+    return [...new Set(matchingKeys)]
 }
 
 async function searchS3Objects(bucketName, toBeMatched, postfix, matchedStartWith) {
