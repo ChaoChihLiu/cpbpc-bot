@@ -4,6 +4,8 @@ import env from 'dotenv';
 import decimal from 'decimal.js'
 import {ListObjectsV2Command, S3Client} from '@aws-sdk/client-s3'
 import logger from "../service/logger.mjs"
+import pool from "../service/dbConnPool.mjs"
+import mysql from "mysql2/promise";
 
 env.config();
 
@@ -15,7 +17,7 @@ export function run(msg) {
 
     keepState(user_sha, `${WAIT_FOR_INPUT}-${OBJ_NAME_SEARCH_HYMN}`);
 
-    return { text: `give me hymn number/title` };
+    return { text: `give me hymn number/keywords (split by space)` };
 }
 
 function isPureNumber(str) {
@@ -27,6 +29,21 @@ function isText(str) {
 }
 
 const baseURL = 'https://d13vhl06g9ql7i.cloudfront.net/hymn/testhymn/num/'
+
+async function queryHymn(keywords) {
+    let queryStat = `SELECT seq_no
+                     FROM cpbpc_document
+                     WHERE ${keywords.map(() => 'content LIKE ?').join(' AND ')}`;
+    const values = keywords.map(keyword => `%${keyword}%`);
+    let [rows, fields] = await pool.query(queryStat, values)
+    logger.info( `query statement : ${mysql.format(queryStat, values)}`)
+    let result = rows.map(row => `${baseURL}${row['seq_no']}`)
+
+    logger.info( `result ${JSON.stringify(result)}` )
+
+    return result
+}
+
 export async function handleWaitForInput(msg) {
     const userstat_key = hashHeader(msg.from);
     cleanState(userstat_key);
@@ -43,17 +60,21 @@ export async function handleWaitForInput(msg) {
         return { text: `${baseURL}${hymnNum}` };
     }
 
-    let hymnTitle = input.replace(/\s+/g, '_');
-    logger.info( `hymn title to search ${hymnTitle}` )
-    let matchedObjects = await searchS3ObjectsWithTitle( bucketName, hymnTitle, '.jpg' )
-    if( !matchedObjects || matchedObjects.length <= 0 ){
-        return { text: `Hymn ${input} not exist` };
-    }
-    let urls = matchedObjects.map(transformToURL)
-    if( !urls || urls.length <= 0 ){
-        return { text: `Hymn ${input} not exist` };
-    }
-    
+    // let hymnTitle = input.replace(/\s+/g, '_');
+    // logger.info( `hymn title to search ${hymnTitle}` )
+    // let matchedObjects = await searchS3ObjectsWithTitle( bucketName, hymnTitle, '.jpg' )
+    // if( !matchedObjects || matchedObjects.length <= 0 ){
+    //     return { text: `Hymn ${input} not exist` };
+    // }
+    // let urls = matchedObjects.map(transformToURL)
+    // if( !urls || urls.length <= 0 ){
+    //     return { text: `Hymn ${input} not exist` };
+    // }
+
+    let keywords = _.split(input, " ")
+    let urls = await queryHymn(keywords)
+    urls = _.slice(urls,0, 10)
+
     return { text: urls.join('\n') };
 }
 
