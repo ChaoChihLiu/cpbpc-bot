@@ -73,6 +73,10 @@ export async function handleWaitForInput(msg) {
 
     let keywords = _.split(input, " ")
     let urls = await queryHymn(keywords)
+    if( !urls || urls.length <= 0 ){
+        return { text: `No hymn contains these keywords: ${input}` };
+    }
+
     urls = _.slice(urls,0, 10)
 
     return { text: urls.join('\n') };
