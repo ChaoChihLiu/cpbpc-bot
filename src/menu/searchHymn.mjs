@@ -83,6 +83,9 @@ export async function handleWaitForInput(msg) {
 
         let isExisted = await searchS3ObjectsWithNumber( bucketName, hymnNum, '.jpg' )
         let result = await queryHymnWithNumber(hymnNum, isExisted)
+        if( !result || result.length <= 0 ){
+            return { text: `No hymn number: ${input}` };
+        }
 
         return { text: `${result[0]}` };
     }
