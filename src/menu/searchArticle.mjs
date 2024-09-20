@@ -117,16 +117,10 @@ async function queryPublishId(rows) {
 export async function handleWaitForInput(msg) {
     // const musts = tokenize(msg.text);
     const question = _.toLower(msg.text)
-    // let keywords = await identifyKeywords(question)
-    // keywords = addSomemore(keywords, question)
-
-    // if( _.isEmpty(keywords) ){
-    //     return { text: "no result, cannot identify keyword/key phrase" };
-    // }
+    const userstat_key = hashHeader(msg.from);
+    cleanState(userstat_key);
 
     let {keywords, synonyms} = await runAllPromiseWithKeywords(question)
-    // keywords.push(must)
-    // keywords = _.compact(keywords)
 
     if( _.isEmpty(synonyms) ){
         return { text: "no result, cannot identify synonyms" };
@@ -168,8 +162,6 @@ export async function handleWaitForInput(msg) {
         let [rows, fields] = await pool.query(queryStat,parameters);
         // rows = await queryPublishId(rows);
         logger.info(`rows is ${JSON.stringify(rows)}`);
-        const userstat_key = hashHeader(msg.from);
-        cleanState(userstat_key);
 
         if (_.isEmpty(rows)) {
             return { text: "no result" };
