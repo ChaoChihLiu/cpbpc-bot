@@ -33,14 +33,62 @@ function isText(str) {
 }
 
 async function queryHymn(keywords) {
-    let queryStat = `SELECT seq_no, title
-                     FROM cpbpc_hymn
-                     WHERE  category='churchhymnal' and ${keywords.map(() => 'content LIKE ?').join(' AND ')}`;
-    const values = keywords.map(keyword => `%${keyword}%`);
-    let [rows, fields] = await pool.query(queryStat, values)
-    logger.info( `query statement : ${mysql.format(queryStat, values)}`)
-
     const limit = pLimit(5);
+
+    const queries = async () => {
+        // Prepare the query for the first statement
+        const query1 = () => {
+            const queryStat = `SELECT seq_no, title
+                     FROM cpbpc_hymn
+                     WHERE  category='churchhymnal' and title LIKE ? order by seq_no asc`;
+            const values = keywords;
+            return pool.query(queryStat, values)
+                .then(([rows, fields]) => {
+                    logger.info(`query statement : ${mysql.format(queryStat, values)}`);
+                    return rows;
+                });
+        };
+
+        // Prepare the query for the second statement
+        const query2 = () => {
+            const queryStat = `SELECT seq_no, title
+                     FROM cpbpc_hymn
+                     WHERE  category='churchhymnal' and content LIKE ? order by seq_no asc`;
+            const values = _.replace(keywords, /\s+/g, ' ');
+            return pool.query(queryStat, values)
+                .then(([rows, fields]) => {
+                    logger.info(`query statement : ${mysql.format(queryStat, values)}`);
+                    return rows;
+                });
+        };
+
+        // Prepare the query for the third statement
+        const query3 = () => {
+            const queryStat = `SELECT seq_no, title
+                     FROM cpbpc_hymn
+                     WHERE  category='churchhymnal' and ${keywords.map(() => 'content LIKE ?').join(' AND ')} order by seq_no asc`;
+            const values = keywords.map(keyword => `%${keyword}%`);
+            return pool.query(queryStat, values)
+                .then(([rows, fields]) => {
+                    logger.info(`query statement : ${mysql.format(queryStat, values)}`);
+                    return rows;
+                });
+        };
+
+        // Use p-limit to control concurrency and run all queries in parallel
+        const results = await Promise.all([
+            limit(query1),
+            limit(query2),
+            limit(query3)
+        ]);
+
+        return results;
+    }//end of const queries = async ()
+
+    const [result1, result2, result3] = await queries()
+    const allResults = [...result1, ...result2, ...result3]
+    const rows = _.uniqBy(allResults, 'seq_no')
+
     let tasks = rows.map(row =>
         limit(async () => {
             let isExisted = await searchS3ObjectsWithNumber(bucketName, row['seq_no'], '.jpg');
@@ -48,11 +96,11 @@ async function queryHymn(keywords) {
             return hymnData[0];
         })
     );
-    const results = await Promise.all(tasks);
+    const data = await Promise.all(tasks);
 
-    logger.info( `result ${JSON.stringify(results)}` )
+    logger.info( `result ${JSON.stringify(data)}` )
 
-    return results
+    return data
 }
 
 async function queryHymnWithNumber(number, inS3) {
