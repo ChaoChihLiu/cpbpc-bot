@@ -46,9 +46,9 @@ async function queryHymn(keyword) {
                          FROM cpbpc_hymn
                          WHERE  category='churchhymnal' and ${keyword.split(" ").map(() => 'content LIKE ?').join(' AND ')}`;
     const values1 = keyword
-    const values2 = _.replace(keyword, /\s+/g, ' ')
+    const values2 = _.replace(keyword, /\s+/g, '')
     const values3 = keyword.split(" ").map(input => `%${input}%`);
-    logger.info( `query statement : ${mysql.format(queryStat, [...values1, ...values2, ...values3])}`)
+    logger.info( `query statement : ${mysql.format(queryStat, [values1, values2, ...values3])}`)
     let [rows, fields] = await pool.query(queryStat, [values1, values2, ...values3])
 
     const limit = pLimit(5);
