@@ -84,7 +84,7 @@ export async function handleWaitForInput(msg) {
     const input = _.toLower(msg.text)
     let urls = await queryHymn(input)
     if( !urls || urls.length <= 0 ){
-        return { text: `No hymn contains these keywords: ${input}` };
+        return { text: `No hymn contains this topic: ${input}` };
     }
 
     // urls = _.slice(urls,0, 20)
