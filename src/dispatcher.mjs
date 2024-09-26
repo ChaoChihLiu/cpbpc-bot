@@ -18,7 +18,7 @@ const menu = {
                 { text: 'Weekly', callback_data: 'searchWeekly' }
             ],
             [
-                { text: 'Search Hymn', callback_data: 'searchHymn' },
+                { text: 'Search Hymn', callback_data: 'searchHymnMenu' },
                 { text: 'Search Article', callback_data: 'searchArticle' },
             ],
             // [{ text: '─────────', callback_data: 'separator', callback_game: {} }],
@@ -86,7 +86,7 @@ async function handleWaitForInput(moduleName, msg, telegramBot){
         const result = await module['handleWaitForInput'](msg);
         if( typeof result === 'Promise' ){
             result.then(returnedValue => {
-                if (!returnedValue.options && !returnedValue.text) {
+                if ( !returnedValue.options && !returnedValue.text) {
                     throw new Error("no value returned, should have text or text & options")
                 }
                 if ((Array.isArray(returnedValue))) {

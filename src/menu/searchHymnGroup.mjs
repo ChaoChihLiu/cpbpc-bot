@@ -7,12 +7,14 @@ import logger from "../service/logger.mjs"
 import pool from "../service/dbConnPool.mjs"
 import mysql from "mysql2/promise";
 import pLimit from "p-limit";
-import {baseURL, bucketName, hymnCate} from './searchHymnMenu.mjs'
 
 env.config();
 
 export const OBJ_NAME_SEARCH_HYMN = 'searchHymn';
 decimal.set({ rounding: decimal.ROUND_HALF_EVEN });
+
+const bucketName = 'cpbpc-hymn'
+const baseURL = `https://d13vhl06g9ql7i.cloudfront.net/hymn/cpbpc-hymn/num/`
 
 export function run(msg) {
     let user_sha = hashHeader(msg.from);
@@ -34,15 +36,15 @@ async function queryHymn(keyword) {
     let queryStat = `
                         SELECT seq_no, title
                         FROM cpbpc_hymn
-                        WHERE  category='${hymnCate}' and title LIKE ?
+                        WHERE  category='churchhymnal' and title LIKE ?
                     union
                         SELECT seq_no, title
                         FROM cpbpc_hymn
-                        WHERE  category='${hymnCate}' and content LIKE ?
+                        WHERE  category='churchhymnal' and content LIKE ?
                     union
                         SELECT seq_no, title
                          FROM cpbpc_hymn
-                         WHERE  category='${hymnCate}' and ${keyword.split(" ").map(() => 'content LIKE ?').join(' AND ')}`;
+                         WHERE  category='churchhymnal' and ${keyword.split(" ").map(() => 'content LIKE ?').join(' AND ')}`;
     const values1 = keyword
     const values2 = _.replace(keyword, /\s+/g, '')
     const values3 = keyword.split(" ").map(input => `%${input}%`);
@@ -64,10 +66,10 @@ async function queryHymn(keyword) {
     return results
 }
 
-export async function queryHymnWithNumber(number, inS3) {
+async function queryHymnWithNumber(number, inS3) {
     let queryStat = `SELECT seq_no, title
                      FROM cpbpc_hymn
-                     WHERE seq_no=${number} and category='${hymnCate}'`;
+                     WHERE seq_no=${number} and category='churchhymnal'`;
 
     let [rows, fields] = await pool.query(queryStat)
     logger.info( `query statement : ${mysql.format(queryStat)}`)
@@ -117,7 +119,7 @@ function transformToURL(item) {
 }
 
 const s3 = new S3Client({ region: 'ap-southeast-1' });
-export async function searchS3ObjectsWithNumber(bucketName, prefix, postfix) {
+async function searchS3ObjectsWithNumber(bucketName, prefix, postfix) {
     return searchS3Objects( bucketName, prefix, postfix, true )
 }
 
