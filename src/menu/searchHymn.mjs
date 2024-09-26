@@ -105,9 +105,12 @@ export async function handleWaitForInput(msg) {
         return { text: `No hymn contains these keywords: ${input}` };
     }
 
-    urls = _.slice(urls,0, 20)
-
-    return { text: urls.join('\n') };
+    // urls = _.slice(urls,0, 20)
+    // return { text: urls.join('\n') };
+    const chunkedArrays = _.chunk(urls, 20);
+    return chunkedArrays.map((array => {
+        return { text: array.join('\n') }
+    }))
 }
 
 function transformToURL(item) {
