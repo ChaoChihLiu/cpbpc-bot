@@ -5,8 +5,8 @@ import logger from "../service/logger.mjs"
 import pool from "../service/dbConnPool.mjs"
 import mysql from "mysql2/promise";
 import pLimit from "p-limit";
-import {bucketName, hymnCate} from './searchHymnMenu.mjs'
-import {queryHymnWithNumber, searchS3ObjectsWithNumber} from "./searchHymn.mjs";
+import {baseURL, bucketName, hymnCate} from './searchHymnMenu.mjs'
+import {searchS3ObjectsWithNumber} from "./searchHymn.mjs";
 
 env.config();
 
@@ -46,6 +46,33 @@ async function queryHymn(keyword) {
     logger.info( `result ${JSON.stringify(results)}` )
 
     return results
+}
+
+async function queryHymnWithNumber(number, inS3) {
+    let queryStat = `SELECT ch.seq_no, ch.title, chi.\`index\`
+                     FROM cpbpc_hymn ch
+                     left join cpbpc_hymn_index chi on ch.seq_no = chi.hymn_num
+                     WHERE ch.seq_no=${number} 
+                       and ch.category='${hymnCate}'
+                        and chi.index_type='Scripture'
+                     `;
+
+    let [rows, fields] = await pool.query(queryStat)
+    logger.info( `query statement : ${mysql.format(queryStat)}`)
+
+    // let result = rows.map(row => `${row['title']} \n${baseURL}${row['seq_no']}`)
+    // if( !inS3 ){
+    //     result = rows.map(row => `${row['title']} \nhymn number ${row['seq_no']}`)
+    // }
+    let result = rows.map(row =>
+        !inS3
+            ? `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \nhymn number ${row['seq_no']}`
+            : `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \n${baseURL}${row['seq_no']}`
+    );
+
+    logger.info( `result ${JSON.stringify(result)}` )
+
+    return result
 }
 
 async function findBookFullName(matched) {
