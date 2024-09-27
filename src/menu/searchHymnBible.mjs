@@ -38,7 +38,7 @@ async function queryHymn(keyword) {
     let tasks = rows.map(row =>
         limit(async () => {
             let isExisted = await searchS3ObjectsWithNumber(bucketName, row['seq_no'], '.jpg');
-            let hymnData = await queryHymnWithNumber(row['seq_no'], isExisted);
+            let hymnData = await queryHymnWithNumber(row['index'], row['seq_no'], isExisted);
             return hymnData[0];
         })
     );
@@ -48,13 +48,14 @@ async function queryHymn(keyword) {
     return results
 }
 
-async function queryHymnWithNumber(number, inS3) {
+async function queryHymnWithNumber(ref, number, inS3) {
     let queryStat = `SELECT ch.seq_no, ch.title, chi.\`index\`
                      FROM cpbpc_hymn ch
                      left join cpbpc_hymn_index chi on ch.seq_no = chi.hymn_num
                      WHERE ch.seq_no=${number} 
                        and ch.category='${hymnCate}'
                         and chi.index_type='Scripture'
+                       and chi.\`index\`='${ref}'
                      `;
 
     let [rows, fields] = await pool.query(queryStat)
