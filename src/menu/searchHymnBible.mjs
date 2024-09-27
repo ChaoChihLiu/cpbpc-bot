@@ -22,7 +22,7 @@ export function run(msg) {
 
 async function queryHymn(keyword) {
     let queryStat = `
-                        SELECT DISTINCT (ch.seq_no), ch.title
+                        SELECT DISTINCT (ch.seq_no), ch.title, chi.\`index\`
                         FROM cpbpc_hymn ch
                                  left join cpbpc_hymn_index chi on ch.seq_no = chi.hymn_num
                         WHERE ch.category = '${hymnCate}'

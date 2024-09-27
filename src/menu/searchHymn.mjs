@@ -72,10 +72,15 @@ export async function queryHymnWithNumber(number, inS3) {
     let [rows, fields] = await pool.query(queryStat)
     logger.info( `query statement : ${mysql.format(queryStat)}`)
 
-    let result = rows.map(row => `${row['title']}: \n${baseURL}${row['seq_no']}`)
-    if( !inS3 ){
-        result = rows.map(row => `${row['title']}: \nhymn number ${row['seq_no']}`)
-    }
+    // let result = rows.map(row => `${row['title']} \n${baseURL}${row['seq_no']}`)
+    // if( !inS3 ){
+    //     result = rows.map(row => `${row['title']} \nhymn number ${row['seq_no']}`)
+    // }
+    let result = rows.map(row =>
+        !inS3
+            ? `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \nhymn number ${row['seq_no']}`
+            : `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \n${baseURL}${row['seq_no']}`
+    );
 
     logger.info( `result ${JSON.stringify(result)}` )
 
