@@ -28,7 +28,7 @@ async function queryHymn(keyword) {
                         WHERE ch.category = '${hymnCate}'
                           and chi.index_type = 'Scripture'
                           and chi.\`index\` like ?
-                        order by seq_no asc
+                        order by chi.\`index\` asc
                     `;
     let value = `%${keyword}%`
     logger.info( `query statement : ${mysql.format(queryStat, [value])}`)
