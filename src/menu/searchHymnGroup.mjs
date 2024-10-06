@@ -120,8 +120,8 @@ function transformToURL(item) {
 
 const s3 = new S3Client({ region: 'ap-southeast-1' });
 async function searchS3ObjectsWithNumber(bucketName, prefix, postfix) {
-    // return searchS3Objects( bucketName, prefix, postfix, true )
-    return false;
+    return searchS3Objects( bucketName, prefix, postfix, true )
+    // return false;
 }
 
 async function searchS3ObjectsWithTitle(bucketName, toBeMatched, postfix) {
