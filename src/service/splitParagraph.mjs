@@ -124,7 +124,13 @@ async function splitArticle(){
     }
 }//end of splitArticle
 
-splitArticle()
+splitArticle().then(r => {
+    console.info('done')
+    process.exit(0)
+}).catch(error => {
+    console.error('Error:', error)
+    process.exit(1)
+});
 
 // let input =`
 // <p>My dear readers,</p>
