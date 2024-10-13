@@ -9,7 +9,7 @@ import mysql from "mysql2/promise";
 import pLimit from "p-limit";
 
 env.config();
-const showHymnScores = process.env.show_hymn_scores
+const showHymnScores = process.env.show_hymn_scores === 'true'
 export const OBJ_NAME_SEARCH_HYMN = 'searchHymn';
 decimal.set({ rounding: decimal.ROUND_HALF_EVEN });
 
