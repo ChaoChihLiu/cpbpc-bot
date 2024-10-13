@@ -9,8 +9,8 @@ import mysql from "mysql2/promise";
 import pLimit from "p-limit";
 import {baseURL, bucketName, hymnCate} from './searchHymnMenu.mjs'
 
-env.config();
-
+env.config()
+const showHymnScores = process.env.show_hymn_scores
 export const OBJ_NAME_SEARCH_HYMN = 'searchHymn';
 decimal.set({ rounding: decimal.ROUND_HALF_EVEN });
 
@@ -126,8 +126,10 @@ function transformToURL(item) {
 
 const s3 = new S3Client({ region: 'ap-southeast-1' });
 export async function searchS3ObjectsWithNumber(bucketName, prefix, postfix) {
-    return searchS3Objects( bucketName, prefix, postfix, true )
-    // return false;
+    if( showHymnScores && showHymnScores == true ){
+        return searchS3Objects( bucketName, prefix, postfix, true )
+    }
+    return false;
 }
 
 async function searchS3ObjectsWithTitle(bucketName, toBeMatched, postfix) {
