@@ -5,22 +5,37 @@ import logger from "../service/logger.mjs"
 import pool from "../service/dbConnPool.mjs"
 import mysql from "mysql2/promise";
 import pLimit from "p-limit";
-import {baseURL, bucketName, hymnCate} from './searchHymnMenu.mjs'
+import {baseURL, bucketName, hymnCate, hymnURLPostfix} from './searchHymnMenu.mjs'
 import {searchS3ObjectsWithNumber} from "./searchHymn.mjs";
+import {createAccessKey, hasAuthed, queryAccessKey, waitForAuthInput} from "../service/authWithSheets.mjs";
 
 env.config();
 
 export const OBJ_NAME_SEARCH_HYMN_BIBLE = 'searchHymnBible';
 
-export function run(msg) {
+export async function handleWaitForAuth(msg){
+    const userstat_key = hashHeader(msg.from)
+    cleanState(userstat_key)
+    let result = await createAccessKey(msg)
+    if( _.isEqual(result.text, 'ok') ){
+        return run(msg)
+    }
+
+    return result
+}
+
+export async function run(msg) {
+    const chatId = msg.from.id
+    if( !await hasAuthed(chatId) ){
+        return waitForAuthInput(msg)
+    }
+    
     let user_sha = hashHeader(msg.from);
-
     keepState(user_sha, `${WAIT_FOR_INPUT}-${OBJ_NAME_SEARCH_HYMN_BIBLE}`);
-
     return { text: `give me Bible reference, e.g. Gen 1:2 or Rom 8` };
 }
 
-async function queryHymn(keyword) {
+async function queryHymn(chatId, keyword) {
     let queryStat = `
                         SELECT DISTINCT (ch.seq_no), ch.title, chi.\`index\`
                         FROM cpbpc_hymn ch
@@ -38,7 +53,7 @@ async function queryHymn(keyword) {
     let tasks = rows.map(row =>
         limit(async () => {
             let isExisted = await searchS3ObjectsWithNumber(bucketName, row['seq_no'], '.jpg');
-            let hymnData = await queryHymnWithNumber(row['index'], row['seq_no'], isExisted);
+            let hymnData = await queryHymnWithNumber(chatId, row['index'], row['seq_no'], isExisted);
             return hymnData[0];
         })
     );
@@ -48,7 +63,7 @@ async function queryHymn(keyword) {
     return results
 }
 
-async function queryHymnWithNumber(ref, number, inS3) {
+async function queryHymnWithNumber(chatId, ref, number, inS3) {
     let queryStat = `SELECT ch.seq_no, ch.title, chi.\`index\`
                      FROM cpbpc_hymn ch
                      left join cpbpc_hymn_index chi on ch.seq_no = chi.hymn_num
@@ -61,14 +76,11 @@ async function queryHymnWithNumber(ref, number, inS3) {
     let [rows, fields] = await pool.query(queryStat)
     logger.info( `query statement : ${mysql.format(queryStat)}`)
 
-    // let result = rows.map(row => `${row['title']} \n${baseURL}${row['seq_no']}`)
-    // if( !inS3 ){
-    //     result = rows.map(row => `${row['title']} \nhymn number ${row['seq_no']}`)
-    // }
+    let userAccessKey = await queryAccessKey(chatId)
     let result = rows.map(row =>
         !inS3
             ? `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \nhymn number ${row['seq_no']}`
-            : `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \n${baseURL}${row['seq_no']}`
+            : `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \n${baseURL}${userAccessKey}${hymnURLPostfix}${row['seq_no']}`
     );
 
     logger.info( `result ${JSON.stringify(result)}` )
@@ -112,7 +124,7 @@ export async function handleWaitForInput(msg) {
 
     const input = _.toLower(msg.text)
     const completeRef = await convertRef(input)
-    let urls = await queryHymn(completeRef)
+    let urls = await queryHymn(msg.chat.id, completeRef)
     if( !urls || urls.length <= 0 ){
         return { text: `No hymn contains these keywords: ${input}` };
     }

@@ -1,21 +1,7 @@
 import {google} from 'googleapis';
 import logger from './logger.mjs'
+import {authenticate} from "./gcpAuth.mjs";
 
-const KEYFILEPATH = './.gcp_secret';
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
-
-// Authenticate with the Google Sheets API
-async function authenticate() {
-    const auth = new google.auth.GoogleAuth({
-        keyFile: KEYFILEPATH,
-        scopes: SCOPES,
-    });
-
-    const authClient = await auth.getClient();
-    return authClient;
-}
-
-// Read data from Google Sheets
 var spreadsheetId = ""
 async function readSheet() {
     const authClient = await authenticate();

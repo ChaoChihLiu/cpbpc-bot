@@ -5,6 +5,9 @@ import logger from "./service/logger.mjs";
 let userStates = new Map()
 
 export const WAIT_FOR_INPUT = 'wait_for_input'
+// export const WAIT_FOR_AUTH_EMAIL = 'wait_for_auth_email'
+// export const WAIT_FOR_AUTH_NRIC = 'wait_for_auth_nric'
+export const WAIT_FOR_AUTH = 'wait_for_auth'
 
 export function keepState(user_sha, state){
     let newStateObj = {create_time: Date.now(), state: ''}
@@ -28,6 +31,45 @@ export function isWaitForInput(user_sha){
 
     return false
 }
+
+export function isWaitForAuth(user_sha){
+    if( !userStates.has(user_sha) ){
+        return false
+    }
+
+    if( userStates.get(user_sha).state.startsWith(WAIT_FOR_AUTH) ){
+        return true
+    }
+
+
+    return false
+}
+
+// export function isWaitForAuthEmail(user_sha){
+//     if( !userStates.has(user_sha) ){
+//         return false
+//     }
+//
+//     if( userStates.get(user_sha).state.startsWith(WAIT_FOR_AUTH_EMAIL) ){
+//         return true
+//     }
+//
+//
+//     return false
+// }
+//
+// export function isWaitForAuthNRIC(user_sha){
+//     if( !userStates.has(user_sha) ){
+//         return false
+//     }
+//
+//     if( userStates.get(user_sha).state.startsWith(WAIT_FOR_AUTH_NRIC) ){
+//         return true
+//     }
+//
+//
+//     return false
+// }
 
 export function getState(user_sha){
     if( !userStates.has(user_sha) ){

@@ -7,6 +7,7 @@ import logger from "../service/logger.mjs"
 import pool from "../service/dbConnPool.mjs"
 import mysql from "mysql2/promise";
 import pLimit from "p-limit";
+import {createAccessKey, hasAuthed, waitForAuthInput} from "../service/authWithSheets.mjs";
 
 env.config();
 const showHymnScores = process.env.show_hymn_scores === 'true'
@@ -16,11 +17,25 @@ decimal.set({ rounding: decimal.ROUND_HALF_EVEN });
 const bucketName = 'cpbpc-hymn'
 const baseURL = `https://d13vhl06g9ql7i.cloudfront.net/hymn/cpbpc-hymn/num/`
 
-export function run(msg) {
+export async function handleWaitForAuth(msg){
+    const userstat_key = hashHeader(msg.from)
+    cleanState(userstat_key)
+    let result = await createAccessKey(msg)
+    if( _.isEqual(result.text, 'ok') ){
+        return run(msg)
+    }
+
+    return result
+}
+
+export async function run(msg) {
+    const chatId = msg.from.id
+    if( !await hasAuthed(chatId) ){
+        return waitForAuthInput(msg)
+    }
+
     let user_sha = hashHeader(msg.from);
-
     keepState(user_sha, `${WAIT_FOR_INPUT}-${OBJ_NAME_SEARCH_HYMN}`);
-
     return { text: `give me hymn number/keywords (split by space)` };
 }
 

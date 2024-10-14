@@ -1,4 +1,4 @@
-import {getState, hashHeader, isWaitForInput, WAIT_FOR_INPUT} from "./userstat.mjs";
+import {getState, hashHeader, isWaitForAuth, isWaitForInput, WAIT_FOR_AUTH, WAIT_FOR_INPUT} from "./userstat.mjs";
 import logger from './service/logger.mjs'
 import env from 'dotenv'
 
@@ -21,16 +21,6 @@ const menu = {
                 { text: 'Search Hymn', callback_data: 'searchHymnMenu' },
                 { text: 'Search Article', callback_data: 'searchArticle' },
             ],
-            // [{ text: '─────────', callback_data: 'separator', callback_game: {} }],
-            // [
-            //     { text: 'Weekly-MWS', url: 'https://d13vhl06g9ql7i.cloudfront.net/api/pnw' },
-            //     { text: 'Weekly-SGH', url: 'https://cpbpc-documents.s3-ap-southeast-1.amazonaws.com/Worship/sgh.pdf' },
-            // ],
-            // [
-            //     { text: 'Weekly-MWS', callback_data: 'mwsWeekly' },
-            //     { text: 'Weekly-SGH', callback_data: 'sghWeekly' },
-            // ],
-            // [{ text: '─────────', callback_data: 'separator', callback_game: {} }],
             [{ text: 'church website', url: 'https://calvarypandan.sg/' }]
         ]
     }
@@ -40,16 +30,16 @@ export async function handleMsg(msg, telegramBot){
     const chatId = msg.chat.id;
     const userstat_key = hashHeader(msg.from)
     logger.info(`handleMsg input is ${JSON.stringify(msg)}`);
-    // logger.info( `sha 'from' information ${hashHeader(msg.from)}` );
-
     const input = msg.text
 
-    if( !isWaitForInput(userstat_key) ){
+    if( !isWaitForInput(userstat_key)
+        && !isWaitForAuth(userstat_key) ){
         const module = import(`./menu/${input}.mjs`)
+
         module.then((menuModule) => {
             menuModule.run(msg)
         }).catch((error) => {
-            logger.info(`cannot find this module ${input}, go back to main menu`)
+            logger.info(`handleMsg, cannot find this module ${input}, go back to main menu`)
             send(telegramBot, chatId, 'Welcome! What I can help you:', menu)
         })
     }
@@ -58,6 +48,11 @@ export async function handleMsg(msg, telegramBot){
         let array = getState(userstat_key).split('-')
         let moduleName = array[array.indexOf(WAIT_FOR_INPUT)+1]
         handleWaitForInput(moduleName, msg, telegramBot)
+    }
+    if( isWaitForAuth(userstat_key) ){
+        let array = getState(userstat_key).split('-')
+        let moduleName = array[array.indexOf(WAIT_FOR_AUTH)+1]
+        handleWaitForAuth(moduleName, msg, telegramBot)
     }
 }
 
@@ -70,20 +65,28 @@ async function batchSend(telegramBot, chatId, returnedValue) {
 }
 
 async function handleWaitForInput(moduleName, msg, telegramBot){
+    handleFunction(moduleName, 'handleWaitForInput', msg, telegramBot)
+}
+async function handleWaitForAuth(moduleName, msg, telegramBot){
+    handleFunction(moduleName, 'handleWaitForAuth', msg, telegramBot)
+}
+
+async function handleFunction(moduleName, functionName, msg, telegramBot){
+    logger.info(`in handleFunction: ${moduleName}, ${functionName}`)
     
     const chatId = msg.chat.id;
 
     const modulePath = resolve(dirname(fileURLToPath(import.meta.url)), `./menu/${moduleName}.mjs`);
     const module = await import(modulePath)
 
-    if( !module || typeof module['handleWaitForInput'] !== 'function' ){
-        logger.info(`cannot find this module ${moduleName}, go back to main menu`)
+    if( !module || typeof module[functionName] !== 'function' ){
+        logger.info(`handleFunction, cannot find this module ${moduleName}, go back to main menu`)
         send(telegramBot, chatId, 'Welcome! What I can help you:', menu)
         return
     }
 
-    if (typeof module['handleWaitForInput'] === 'function') {
-        const result = await module['handleWaitForInput'](msg);
+    if (typeof module[functionName] === 'function') {
+        const result = await module[functionName](msg);
         if( typeof result === 'Promise' ){
             result.then(returnedValue => {
                 if ( !returnedValue.options && !returnedValue.text) {
@@ -106,9 +109,9 @@ async function handleWaitForInput(moduleName, msg, telegramBot){
                 send(telegramBot, chatId, result.text, result.options)
             }
         }
-    }
+    } //end of if (typeof module[functionName] === 'function')
 
-}
+} //end of handleFunction
 
 async function callModule(msg, telegramBot){
 
@@ -120,7 +123,7 @@ async function callModule(msg, telegramBot){
     const module = await import(modulePath)
 
     if( !module || typeof module['run'] !== 'function' ){
-        logger.info(`cannot find this module ${data}, go back to main menu`)
+        logger.info(`callModule, cannot find this module ${data}, go back to main menu`)
         send(telegramBot, chatId, 'Welcome! What I can help you:', menu)
         return
     }

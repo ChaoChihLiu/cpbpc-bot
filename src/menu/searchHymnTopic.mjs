@@ -7,16 +7,31 @@ import mysql from "mysql2/promise";
 import pLimit from "p-limit";
 import {bucketName, hymnCate} from './searchHymnMenu.mjs'
 import {queryHymnWithNumber, searchS3ObjectsWithNumber} from "./searchHymn.mjs";
+import {createAccessKey, hasAuthed, waitForAuthInput} from "../service/authWithSheets.mjs";
 
 env.config();
 
 export const OBJ_NAME_SEARCH_HYMN_TOPIC = 'searchHymnTopic';
 
+export async function handleWaitForAuth(msg){
+    const userstat_key = hashHeader(msg.from)
+    cleanState(userstat_key)
+    let result = await createAccessKey(msg)
+    if( _.isEqual(result.text, 'ok') ){
+        return run(msg)
+    }
+
+    return result
+}
+
 export async function run(msg) {
+    const chatId = msg.from.id
+    if( !await hasAuthed(chatId) ){
+        return waitForAuthInput(msg)
+    }
+
     let user_sha = hashHeader(msg.from);
-
     keepState(user_sha, `${WAIT_FOR_INPUT}-${OBJ_NAME_SEARCH_HYMN_TOPIC}`);
-
     const rows = await queryTopics()
     const formattedList = _.map(rows, (row) => `${row['seq_no']}. ${row['topic']}`);
     const formattedString = _.join(formattedList, '\n');

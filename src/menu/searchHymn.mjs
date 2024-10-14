@@ -7,23 +7,38 @@ import logger from "../service/logger.mjs"
 import pool from "../service/dbConnPool.mjs"
 import mysql from "mysql2/promise";
 import pLimit from "p-limit";
-import {baseURL, bucketName, hymnCate} from './searchHymnMenu.mjs'
+import {baseURL, bucketName, hymnCate, hymnURLPostfix} from './searchHymnMenu.mjs'
+import {createAccessKey, hasAuthed, queryAccessKey, waitForAuthInput} from "../service/authWithSheets.mjs";
 
 env.config()
 const showHymnScores = process.env.show_hymn_scores === 'true'
 export const OBJ_NAME_SEARCH_HYMN = 'searchHymn';
 decimal.set({ rounding: decimal.ROUND_HALF_EVEN });
 
-export function run(msg) {
+export async function run(msg) {
+    const chatId = msg.from.id
+    if( !await hasAuthed(chatId) ){
+        return waitForAuthInput(msg)
+    }
+
     let user_sha = hashHeader(msg.from);
-
-    keepState(user_sha, `${WAIT_FOR_INPUT}-${OBJ_NAME_SEARCH_HYMN}`);
-
-    return { text: `give me hymn number/keywords (split by space)` };
+    keepState(user_sha, `${WAIT_FOR_INPUT}-${OBJ_NAME_SEARCH_HYMN}`)
+    return { text: `give me hymn number/keywords (split by space)` }
 }
 
 function isPureNumber(str) {
     return /^\d+$/.test(str);
+}
+
+export async function handleWaitForAuth(msg){
+    const userstat_key = hashHeader(msg.from)
+    cleanState(userstat_key)
+    let result = await createAccessKey(msg)
+    if( _.isEqual(result.text, 'ok') ){
+        return run(msg)
+    }
+
+    return result
 }
 
 function isText(str) {
@@ -64,7 +79,7 @@ async function queryHymn(keyword) {
     return results
 }
 
-export async function queryHymnWithNumber(number, inS3) {
+export async function queryHymnWithNumber(chatId, number, inS3) {
     let queryStat = `SELECT seq_no, title
                      FROM cpbpc_hymn
                      WHERE seq_no=${number} and category='${hymnCate}'`;
@@ -72,14 +87,12 @@ export async function queryHymnWithNumber(number, inS3) {
     let [rows, fields] = await pool.query(queryStat)
     logger.info( `query statement : ${mysql.format(queryStat)}`)
 
-    // let result = rows.map(row => `${row['title']} \n${baseURL}${row['seq_no']}`)
-    // if( !inS3 ){
-    //     result = rows.map(row => `${row['title']} \nhymn number ${row['seq_no']}`)
-    // }
+    let userAccessKey = await queryAccessKey(chatId)
+
     let result = rows.map(row =>
         !inS3
             ? `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \nhymn number ${row['seq_no']}`
-            : `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \n${baseURL}${row['seq_no']}`
+            : `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \n${baseURL}${userAccessKey}${hymnURLPostfix}${row['seq_no']}`
     );
 
     logger.info( `result ${JSON.stringify(result)}` )
@@ -96,7 +109,7 @@ export async function handleWaitForInput(msg) {
         let hymnNum = input
 
         let isExisted = await searchS3ObjectsWithNumber( bucketName, hymnNum, '.jpg' )
-        let result = await queryHymnWithNumber(hymnNum, isExisted)
+        let result = await queryHymnWithNumber(msg.chat.id, hymnNum, isExisted)
         if( !result || result.length <= 0 ){
             return { text: `No hymn number: ${input}` };
         }
