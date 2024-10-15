@@ -55,7 +55,7 @@ async function queryTopics() {
     return rows
 }
 
-async function queryHymn(keyword) {
+async function queryHymn(chatId, keyword) {
     let queryStat = `
                      SELECT DISTINCT (ch.seq_no), ch.title
                         FROM cpbpc_hymn ch
@@ -82,7 +82,7 @@ async function queryHymn(keyword) {
     let tasks = rows.map(row =>
         limit(async () => {
             let isExisted = await searchS3ObjectsWithNumber(bucketName, row['seq_no'], '.jpg');
-            let hymnData = await queryHymnWithNumber(row['seq_no'], isExisted);
+            let hymnData = await queryHymnWithNumber(chatId, row['seq_no'], isExisted);
             return hymnData[0];
         })
     );
@@ -97,7 +97,7 @@ export async function handleWaitForInput(msg) {
     cleanState(userstat_key);
 
     const input = _.toLower(msg.text)
-    let urls = await queryHymn(input)
+    let urls = await queryHymn(msg.chat.id, input)
     if( !urls || urls.length <= 0 ){
         return { text: `No hymn contains this topic: ${input}` };
     }

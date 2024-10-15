@@ -45,7 +45,7 @@ function isText(str) {
     return isNaN(str) && typeof str === 'string';
 }
 
-async function queryHymn(keyword) {
+async function queryHymn(chatId, keyword) {
     let queryStat = `
                         SELECT seq_no, title
                         FROM cpbpc_hymn
@@ -68,7 +68,7 @@ async function queryHymn(keyword) {
     let tasks = rows.map(row =>
         limit(async () => {
             let isExisted = await searchS3ObjectsWithNumber(bucketName, row['seq_no'], '.jpg');
-            let hymnData = await queryHymnWithNumber(row['seq_no'], isExisted);
+            let hymnData = await queryHymnWithNumber(chatId, row['seq_no'], isExisted);
             return hymnData[0];
         })
     );
@@ -118,7 +118,7 @@ export async function handleWaitForInput(msg) {
     }
     
     // let keywords = _.split(input, " ")
-    let urls = await queryHymn(input)
+    let urls = await queryHymn(msg.chat.id, input)
     if( !urls || urls.length <= 0 ){
         return { text: `No hymn contains these keywords: ${input}` };
     }
