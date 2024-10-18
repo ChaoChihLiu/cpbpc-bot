@@ -52,7 +52,7 @@ async function queryHymn(chatId, keyword) {
     const limit = pLimit(5);
     let tasks = rows.map(row =>
         limit(async () => {
-            let isExisted = await searchS3ObjectsWithNumber(bucketName, row['seq_no'], '.jpg');
+            let isExisted = await searchS3ObjectsWithNumber(bucketName, row['seq_no'], '_watermarked.jpg');
             let hymnData = await queryHymnWithNumber(chatId, row['index'], row['seq_no'], isExisted);
             return hymnData[0];
         })

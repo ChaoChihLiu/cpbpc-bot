@@ -69,7 +69,7 @@ async function queryHymn(keyword) {
     const limit = pLimit(5);
     let tasks = rows.map(row =>
         limit(async () => {
-            let isExisted = await searchS3ObjectsWithNumber(bucketName, row['seq_no'], '.jpg');
+            let isExisted = await searchS3ObjectsWithNumber(bucketName, row['seq_no'], '_watermarked.jpg');
             let hymnData = await queryHymnWithNumber(row['seq_no'], isExisted);
             return hymnData[0];
         })
@@ -107,7 +107,7 @@ export async function handleWaitForInput(msg) {
     if( isPureNumber(input) ){
         let hymnNum = input
 
-        let isExisted = await searchS3ObjectsWithNumber( bucketName, hymnNum, '.jpg' )
+        let isExisted = await searchS3ObjectsWithNumber( bucketName, hymnNum, '_watermarked.jpg' )
         let result = await queryHymnWithNumber(hymnNum, isExisted)
         if( !result || result.length <= 0 ){
             return { text: `No hymn number: ${input}` };
