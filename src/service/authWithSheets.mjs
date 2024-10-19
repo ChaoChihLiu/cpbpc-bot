@@ -100,7 +100,7 @@ export async function createAccessKey(msg){
 }
 
 function isCorrectFormat(userInfo){
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+,\s+\d{3}[A-Za-z]$/
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+\s{0,},\s{0,}\d{3}[A-Za-z]$/
     if (regex.test(userInfo)) {
         return true
     } else {
