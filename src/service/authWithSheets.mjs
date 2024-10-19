@@ -21,7 +21,7 @@ export async function searchId( email, idNum ) {
     })
 
     const rows = response.data.values
-    let rowIndex = _.findIndex(rows, (row) => _.isEqual(_.trim(row[0]), _.trim(email)))
+    let rowIndex = _.findIndex(rows, (row) => _.isEqual(_.trim(_.toLower(row[0])), _.trim(_.toLower(email))))
     if( rowIndex < 0 ){
         return false
     }
@@ -33,7 +33,7 @@ export async function searchId( email, idNum ) {
         range,
     })
     const nric = response.data.values[0][0]
-    if( _.endsWith(nric, idNum) ){
+    if( _.endsWith(_.toLower(_.trim(nric)), _.toLower(_.trim(idNum))) ){
         return true
     }
 
