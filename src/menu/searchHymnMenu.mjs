@@ -11,7 +11,7 @@ export const OBJ_NAME_SEARCH_HYMN_MENU = 'searchHymnMenu';
 export const bucketName = process.env.hymn_bucket
 // export const baseURL = `https://d13vhl06g9ql7i.cloudfront.net/hymn/cpbpc-hymn/num/`
 export const baseURL = `https://d13vhl06g9ql7i.cloudfront.net/`
-export const hymnURLPostfix = `/cpbpc-hymn/num/`
+export const hymnURLPostfix = `/cpbpc-hymn/`
 export const hymnCate = 'churchhymnal'
 
 export async function run(msg) {

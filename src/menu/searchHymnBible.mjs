@@ -64,7 +64,7 @@ async function queryHymn(chatId, keyword) {
 }
 
 async function queryHymnWithNumber(chatId, ref, number, inS3) {
-    let queryStat = `SELECT ch.seq_no, ch.title, chi.\`index\`
+    let queryStat = `SELECT ch.seq_no, ch.title, chi.\`index\`, ch.alias
                      FROM cpbpc_hymn ch
                      left join cpbpc_hymn_index chi on ch.seq_no = chi.hymn_num
                      WHERE ch.seq_no=${number} 
@@ -80,7 +80,7 @@ async function queryHymnWithNumber(chatId, ref, number, inS3) {
     let result = rows.map(row =>
         !inS3
             ? `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \nhymn number ${row['seq_no']}`
-            : `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \n${baseURL}${userAccessKey}${hymnURLPostfix}${row['seq_no']}`
+            : `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \n${baseURL}${userAccessKey}${hymnURLPostfix}${row['alias']}`
     );
 
     logger.info( `result ${JSON.stringify(result)}` )

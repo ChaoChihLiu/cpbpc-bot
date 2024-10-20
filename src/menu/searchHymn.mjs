@@ -80,7 +80,7 @@ async function queryHymn(chatId, keyword) {
 }
 
 export async function queryHymnWithNumber(chatId, number, inS3) {
-    let queryStat = `SELECT seq_no, title
+    let queryStat = `SELECT seq_no, title, alias
                      FROM cpbpc_hymn
                      WHERE seq_no=${number} and category='${hymnCate}'`;
 
@@ -92,7 +92,7 @@ export async function queryHymnWithNumber(chatId, number, inS3) {
     let result = rows.map(row =>
         !inS3
             ? `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \nhymn number ${row['seq_no']}`
-            : `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \n${baseURL}${userAccessKey}${hymnURLPostfix}${row['seq_no']}`
+            : `${row['index'] ? row['index'] + ' - ' : ''}${row['title']} \n${baseURL}${userAccessKey}${hymnURLPostfix}${row['alias']}`
     );
 
     logger.info( `result ${JSON.stringify(result)}` )
