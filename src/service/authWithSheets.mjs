@@ -49,7 +49,7 @@ export function waitForAuthInput(msg){
     let user_sha = hashHeader(msg.from);
     logger.info(`msg data ${msg.data}`)
     keepState(user_sha, `${WAIT_FOR_AUTH}-${msg.data}`);
-    return { text: `this function is only accessible to church member\n need your email and last 4 digits of NRIC, use comma as delimiter. \ne.g. 1234@gmail.com,567D` }
+    return { text: `this function is only accessible to church member\n need your email and last 4 digits passcode (including 3 numbers and 1 English letter), \nuse comma as delimiter. \ne.g. 1234@gmail.com,567D` }
 }
 
 async function isIdentityVerified(chatId) {
